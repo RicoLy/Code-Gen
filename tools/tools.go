@@ -275,7 +275,7 @@ func Clean() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	case config.Window:
-		cmd := exec.Command("cmd", "/c", "cls")
+		cmd := exec.Command("main", "/c", "cls")
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}

@@ -4,7 +4,8 @@ import (
 	"bufio"
 	"code-gen/cmds"
 	"code-gen/config"
-	"code-gen/entry"
+	"code-gen/db"
+	"code-gen/entity"
 	"code-gen/logic"
 	"code-gen/tools"
 	"database/sql"
@@ -20,9 +21,9 @@ import (
 )
 
 var (
-	Conn    *sql.DB        //连接对象
-	DbConn  entry.DBConfig //db config
-	Formats []string       //format
+	Conn   *sql.DB         //连接对象
+	DbConn entity.DBConfig //db config
+
 )
 
 //命令行实现
@@ -119,12 +120,12 @@ func usage(app *cli.App) {
 // 实现命令功能
 func Commands(stop chan bool) error {
 	var err error
-	Conn, err = entry.InitDB(DbConn)
+	Conn, err = db.InitDB(DbConn)
 	if Conn == nil || err != nil {
 		return errors.New("database connect failed>>" + err.Error())
 	}
 	//初使工作
-	DbModel := entry.NewDB()
+	DbModel := db.NewDB()
 	DbModel.Using(Conn)
 	DbModel.DBName = DbConn.DBName
 

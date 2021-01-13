@@ -3,8 +3,7 @@ package cmds
 import (
 	"bufio"
 	"code-gen/config"
-	"code-gen/core"
-	"code-gen/entry"
+	"code-gen/entity"
 	"code-gen/logic"
 	"code-gen/tools"
 	"fmt"
@@ -74,9 +73,9 @@ func (c *commands) GenerateEntry(args []string) int {
 	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
 	switch strings.ToLower(string(line)) {
 	case "yes", "y":
-		core.Formats = c._setFormat()
+		config.Formats = c._setFormat()
 	}
-	err := c.l.CreateEntity(core.Formats)
+	err := c.l.CreateEntity(config.Formats)
 	if err != nil {
 		log.Println("GenerateEntry>>", err.Error())
 	}
@@ -86,13 +85,13 @@ func (c *commands) GenerateEntry(args []string) int {
 
 //还可以自定义结构体解析实体,如json,gorm,xml
 func (c *commands) CustomFormat(args []string) int {
-	core.Formats = c._setFormat()
+	config.Formats = c._setFormat()
 	return 0
 }
 
 //生成golang操作mysql的CRUD增删改查语句
 func (c *commands) GenerateCURD(args []string) int {
-	err := c.l.CreateCURD(core.Formats)
+	err := c.l.CreateCURD(config.Formats)
 	if err != nil {
 		log.Println("GenerateCURD>>", err.Error())
 	}
@@ -143,9 +142,9 @@ func (c *commands) Quit(args []string) int {
 }
 
 //过滤表名
-func (c *commands) _filterTables(ids string, tables []entry.TableNameAndComment) []entry.TableNameAndComment {
+func (c *commands) _filterTables(ids string, tables []entity.TableNameAndComment) []entity.TableNameAndComment {
 	lst := strings.Split(ids, ",")
-	result := make([]entry.TableNameAndComment, 0)
+	result := make([]entity.TableNameAndComment, 0)
 	if strings.ToLower(ids) == "all" {
 		return tables
 	}
@@ -161,7 +160,7 @@ func (c *commands) _filterTables(ids string, tables []entry.TableNameAndComment)
 }
 
 //显示所有名视图
-func (c *commands) _showTableList(NameAndComment []entry.TableNameAndComment) {
+func (c *commands) _showTableList(NameAndComment []entity.TableNameAndComment) {
 	for idx, table := range NameAndComment {
 		idx++
 		info := fmt.Sprintf("%s:%s", strconv.Itoa(idx), table.Name)

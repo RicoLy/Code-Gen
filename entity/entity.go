@@ -1,4 +1,4 @@
-package entry
+package entity
 
 type CmdEntity struct {
 	No  string

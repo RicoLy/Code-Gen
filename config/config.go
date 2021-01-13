@@ -1,7 +1,7 @@
 package config
 
 import (
-	"code-gen/entry"
+	"code-gen/entity"
 	"os"
 )
 
@@ -57,7 +57,7 @@ const (
 )
 
 // help list
-var CmdHelp = []entry.CmdEntity{
+var CmdHelp = []entity.CmdEntity{
 	{"0", "Set build directory"},
 	{"1", "Generate the table markdown document"},
 	{"2", "Generate table structure entities"},
@@ -124,3 +124,5 @@ var MysqlTypeToGoNullType = map[string]string{
 	"longblob":   "sql.NullString",
 	"longtext":   "sql.NullString",
 }
+
+var Formats []string       //format

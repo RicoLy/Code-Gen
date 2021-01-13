@@ -1,6 +1,7 @@
-package entry
+package db
 
 import (
+	"code-gen/entity"
 	"code-gen/tools"
 	"database/sql"
 	"sync"
@@ -10,10 +11,10 @@ import (
 type ModelS struct {
 	*sql.DB
 	T        *tools.Tools
-	l        sync.Mutex            // 锁
-	DBName   string                // 库名
-	Tables   []TableNameAndComment // 所有的表名数据
-	DoTables []TableNameAndComment // 处理的表名列表
+	l        sync.Mutex                   // 锁
+	DBName   string                       // 库名
+	Tables   []entity.TableNameAndComment // 所有的表名数据
+	DoTables []entity.TableNameAndComment // 处理的表名列表
 }
 
 

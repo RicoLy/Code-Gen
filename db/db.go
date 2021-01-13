@@ -1,13 +1,15 @@
-package entry
+package db
 
 import (
+	"code-gen/entity"
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"strings"
 )
 
 //连接数据库
-func InitDB(cfg DBConfig) (*sql.DB, error) {
+func InitDB(cfg entity.DBConfig) (*sql.DB, error) {
 	if strings.EqualFold(cfg.Timezone, "") {
 		cfg.Timezone = "'Asia/Shanghai'"
 	}
