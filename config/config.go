@@ -7,10 +7,10 @@ import (
 
 const (
 	ProjectName = "go-mygen"
-	Version     = "v3.3.9"
-	Copyright   = "2020.12"
-	Author      = "百里"
-	AuthorEmail = "freeit@126.com"
+	Version     = "v0.0.0"
+	Copyright   = "2021.1"
+	Author      = "RicoLy"
+	AuthorEmail = "RicoLy@yeah.net"
 )
 
 const (

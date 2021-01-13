@@ -2,8 +2,10 @@ package core
 
 import (
 	"bufio"
+	"code-gen/cmds"
 	"code-gen/config"
 	"code-gen/entry"
+	"code-gen/logic"
 	"code-gen/tools"
 	"database/sql"
 	"errors"
@@ -18,9 +20,9 @@ import (
 )
 
 var (
-	Conn    *sql.DB  //连接对象
+	Conn    *sql.DB        //连接对象
 	DbConn  entry.DBConfig //db config
-	formats []string //format
+	Formats []string       //format
 )
 
 //命令行实现
@@ -53,7 +55,7 @@ func Start(app *cli.App, stop chan bool) {
 				DbConn.Pass = string(pass)
 				tools.Clean()
 			}
-			if err := Commands(); err != nil {
+			if err := Commands(stop); err != nil {
 				return cli.NewExitError(err, 1)
 			}
 		}
@@ -115,7 +117,7 @@ func usage(app *cli.App) {
 }
 
 // 实现命令功能
-func Commands() error {
+func Commands(stop chan bool) error {
 	var err error
 	Conn, err = entry.InitDB(DbConn)
 	if Conn == nil || err != nil {
@@ -126,16 +128,16 @@ func Commands() error {
 	DbModel.Using(Conn)
 	DbModel.DBName = DbConn.DBName
 
-	logic := &Logic{
+	lgc := &logic.Logic{
 		DB:   DbModel,
-		Path: GetExeRootDir() + DefaultSavePath + DS, //默认当前命令所在目录
+		Path: tools.GetExeRootDir() + config.DefaultSavePath + config.DS, //默认当前命令所在目录
 	}
-	err = logic.DB.GetTableNameAndComment()
+	err = lgc.DB.GetTableNameAndComment()
 	if err != nil {
 		return err
 	}
 
-	commands := NewCommands(logic)
+	commands := cmds.NewCommands(lgc)
 	commands.Help(nil)
 	handlers := commands.Handlers()
 
