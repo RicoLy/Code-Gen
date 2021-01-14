@@ -98,7 +98,7 @@ func (c *commands) GormGenerateEntry(args []string) int {
 	}
 	//go tools.Gofmt(tools.GetExeRootDir()) //格式化代码
 
-	go tools.Gofmt(tools.CreateDir(c.l.Path+config.GormDirEntity) + config.DS)
+	go tools.Gofmt(tools.CreateDir(c.l.Path+config.GormDirEntity) + config.DS) //格式化代码
 	return 0
 }
 

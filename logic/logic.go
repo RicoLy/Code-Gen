@@ -54,7 +54,7 @@ func (l *Logic) CreateEntity(formatList []string) (err error) {
 	return
 }
 
-// 生成结构实体文件
+// 生成Gorm结构实体CRUD文件
 func (l *Logic) GormCreateEntity(formatList []string) (err error) {
 	// 文件路径
 	path := tools.CreateDir(l.Path+config.GormDirEntity) + config.DS
