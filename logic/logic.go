@@ -8,10 +8,10 @@ import (
 	"code-gen/entity"
 	"code-gen/tools"
 	"fmt"
-	"html/template"
 	"log"
 	"strings"
 	"sync"
+	"text/template"
 	"time"
 )
 
@@ -26,7 +26,7 @@ type Logic struct {
 // 生成结构实体文件
 func (l *Logic) CreateEntity(formatList []string) (err error) {
 	// 表结构文件路径
-	path := tools.CreateDir(l.Path + config.GODIR_Entity) + config.DS + config.GOFILE_ENTITY
+	path := tools.CreateDir(l.Path+config.GODIR_Entity) + config.DS + config.GOFILE_ENTITY
 	// 将表结构写入文件
 	for idx, table := range l.DB.DoTables {
 		idx++
@@ -51,6 +51,49 @@ func (l *Logic) CreateEntity(formatList []string) (err error) {
 			continue
 		}
 	}
+	return
+}
+
+// 生成结构实体文件
+func (l *Logic) GormCreateEntity(formatList []string) (err error) {
+	// 文件路径
+	path := tools.CreateDir(l.Path+config.GormDirEntity) + config.DS
+
+	//生成init文件
+	if err = l.GormGenerateInit(path, config.PkgEntity); err != nil {
+		return
+	}
+
+	//生成tools文件
+	if err = l.GormGenerateTools(path, config.PkgEntity); err != nil {
+		return
+	}
+
+	// 将表结构写入文件
+	for idx, table := range l.DB.DoTables {
+		idx++
+		// 查询表结构信息
+		tableDesc, err := l.DB.GetTableDesc(table.Name)
+		if err != nil {
+			log.Fatal("CreateEntityErr>>", err)
+			continue
+		}
+		req := new(entity.EntityReq)
+		req.Index = idx
+		req.EntityPath = path + table.Name + ".go"
+		req.TableName = table.Name
+		req.TableComment = table.Comment
+		req.TableDesc = tableDesc
+		req.FormatList = formatList
+		req.EntityPkg = config.PkgEntity
+		// 生成基础信息
+		err = l.GormGenerateDBEntity(req)
+		if err != nil {
+			log.Fatal("CreateEntityErr>>", err)
+			continue
+		}
+	}
+
 	return
 }
 
@@ -179,6 +222,76 @@ package mysql
 	// 声明表结构变量
 	TableData := new(entity.TableInfo)
 	TableData.Table = l.T.Capitalize(tableName)
+	TableData.TableName = tableName
+	TableData.NullTable = config.DbNullPrefix + TableData.Table
+	TableData.TableComment = tableComment
+	// 判断表结构是否加载过
+	if l.T.CheckFileContainsChar(path, "type "+TableData.Table+" struct") == true {
+		return
+	}
+	// 加载模板文件
+	tplByte, err := assets.Asset(config.TPL_STRUCTURE)
+	if err != nil {
+		return
+	}
+	tpl, err := template.New("structure").Parse(string(tplByte))
+	if err != nil {
+		return
+	}
+	// 装载表字段信息
+	fts := []string{"json"}
+	if err != nil {
+		return
+	}
+	// 判断是否含json
+	if !tools.InArrayString("json", fts) {
+		index0 := fts[0]
+		fts[0] = "json"
+		fts = append(fts, index0)
+	}
+	for _, val := range tableDesc {
+		TableData.Fields = append(TableData.Fields, &entity.FieldsInfo{
+			Name:         l.T.Capitalize(val.ColumnName),
+			Type:         val.GolangType,
+			NullType:     val.MysqlNullType,
+			DbOriField:   val.ColumnName,
+			FormatFields: tools.FormatField(val.ColumnName, fts),
+			Remark:       val.ColumnComment,
+		})
+	}
+	content := bytes.NewBuffer([]byte{})
+	if err = tpl.Execute(content, TableData); err != nil {
+		return
+	}
+	// 表信息写入文件
+
+	err = tools.WriteAppendFile(path, content.String())
+	if err != nil {
+		return
+	}
+	return
+}
+
+// 创建结构体
+func (l *Logic) MyGenerateDBStructure(tableName, tableComment, path string, tableDesc []*entity.TableDesc) (err error) {
+	// 加入package
+	packageStr := `// 数据库表内结构体信息
+package mysql
+` // 判断package是否加载过
+	// 判断文件是否存在.
+
+	if l.T.CheckFileContainsChar(path, packageStr) == false {
+		l.T.WriteFile(path, packageStr)
+	}
+	// 判断import是否加载过
+	importStr := `import "database/sql"`
+	if l.T.CheckFileContainsChar(path, importStr) == false {
+		l.T.WriteFileAppend(path, importStr)
+	}
+	// 声明表结构变量
+	TableData := new(entity.TableInfo)
+	TableData.Table = l.T.Capitalize(tableName)
+	TableData.TableName = tableName
 	TableData.NullTable = config.DbNullPrefix + TableData.Table
 	TableData.TableComment = tableComment
 	// 判断表结构是否加载过
@@ -249,6 +362,7 @@ import (
 	// 声明表结构变量
 	TableData := new(entity.TableInfo)
 	TableData.Table = l.T.Capitalize(req.TableName)
+	TableData.TableName = req.TableName
 	TableData.NullTable = TableData.Table + config.DbNullPrefix
 	TableData.TableComment = tools.AddToComment(req.TableComment, "")
 	TableData.TableCommentNull = tools.AddToComment(req.TableComment, " Null Entity")
@@ -282,6 +396,77 @@ import (
 	// 表信息写入文件
 	con := strings.Replace(content.String(), "&#34;", `"`, -1)
 	err = tools.WriteAppendFile(req.EntityPath, con)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// 创建结构实体 todo
+func (l *Logic) GormGenerateDBEntity(req *entity.EntityReq) (err error) {
+	l.l.Lock()
+	defer l.l.Unlock()
+	// 声明表结构变量
+	TableData := new(entity.TableInfo)
+	TableData.PackageName = req.EntityPkg
+	TableData.Table = l.T.Capitalize(req.TableName)
+	TableData.TableName = req.TableName
+	TableData.NullTable = TableData.Table + config.DbNullPrefix
+	TableData.TableComment = tools.AddToComment(req.TableComment, "")
+	TableData.TableCommentNull = tools.AddToComment(req.TableComment, " Null Entity")
+	tplByte, err := assets.Asset(config.GormEntityTpl)
+	if err != nil {
+		return
+	}
+	tpl, err := template.New("entity").Parse(string(tplByte))
+	if err != nil {
+		return
+	}
+	// 装载表字段信息
+	for _, val := range req.TableDesc {
+		if tools.InArrayString(val.ColumnName, config.ExcludeBaseFields) {
+			continue
+		}
+		TableData.Fields = append(TableData.Fields, &entity.FieldsInfo{
+			Name:         l.T.Capitalize(val.ColumnName),
+			Type:         val.GolangType,
+			NullType:     val.MysqlNullType,
+			DbOriField:   val.ColumnName,
+			FormatFields: tools.FormatField(val.ColumnName, req.FormatList),
+			Remark:       tools.AddToComment(val.ColumnComment, ""),
+		})
+	}
+	content := bytes.NewBuffer([]byte{})
+	_ = tpl.Execute(content, TableData)
+	// 表信息写入文件
+	con := strings.Replace(content.String(), "&#34;", `"`, -1)
+	err = tools.WriteFile(req.EntityPath, con)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// 生成init
+func (l *Logic) GormGenerateInit(path string, data string) (err error) {
+	file := path + config.GormInitFileName
+
+	tplByte, err := assets.Asset(config.GormInitTpl)
+	if err != nil {
+		return
+	}
+	tpl, err := template.New("init").Parse(string(tplByte))
+	if err != nil {
+		return
+	}
+	// 解析
+	content := bytes.NewBuffer([]byte{})
+	err = tpl.Execute(content, data)
+	if err != nil {
+		return
+	}
+	// 表信息写入文件
+	err = tools.WriteFile(file, content.String())
 	if err != nil {
 		return
 	}
@@ -581,6 +766,31 @@ func (l *Logic) GenerateMarkdown(data *entity.MarkDownData) (err error) {
 	}
 	// 表信息写入文件
 	err = tools.WriteAppendFile(file, content.String())
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (l *Logic) GormGenerateTools(path string, data string) (err error) {
+	file := path + config.GormToolsFileName
+
+	tplByte, err := assets.Asset(config.GormToolsTpl)
+	if err != nil {
+		return
+	}
+	tpl, err := template.New("tools").Parse(string(tplByte))
+	if err != nil {
+		return
+	}
+	// 解析
+	content := bytes.NewBuffer([]byte{})
+	err = tpl.Execute(content, data)
+	if err != nil {
+		return
+	}
+	// 表信息写入文件
+	err = tools.WriteFile(file, content.String())
 	if err != nil {
 		return
 	}

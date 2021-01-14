@@ -29,6 +29,7 @@ func (c *commands) Handlers() map[string]func(args []string) int {
 		"0":     c.CustomDir,
 		"1":     c.MarkDown,
 		"2":     c.GenerateEntry,
+		"21":    c.GormGenerateEntry,
 		"3":     c.GenerateCURD,
 		"4":     c.CustomFormat,
 		"5":     c.ShowTableList,
@@ -80,6 +81,24 @@ func (c *commands) GenerateEntry(args []string) int {
 		log.Println("GenerateEntry>>", err.Error())
 	}
 	go tools.Gofmt(tools.GetExeRootDir()) //格式化代码
+	return 0
+}
+
+//生成golang表对应的结构实体
+func (c *commands) GormGenerateEntry(args []string) int {
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+	err := c.l.GormCreateEntity(config.Formats)
+	if err != nil {
+		log.Println("GenerateEntry>>", err.Error())
+	}
+	//go tools.Gofmt(tools.GetExeRootDir()) //格式化代码
+
+	go tools.Gofmt(tools.CreateDir(c.l.Path+config.GormDirEntity) + config.DS)
 	return 0
 }
 

@@ -5,7 +5,6 @@ type CmdEntity struct {
 	Msg string
 }
 
-
 // 数据库配置结构
 type DBConfig struct {
 	Host        string // 地址
@@ -73,11 +72,13 @@ type FieldsInfo struct {
 
 // 表信息结构
 type TableInfo struct {
-	Table            string        // 表名
+	Table            string        // 表名驼峰
+	TableName        string        // 表名
 	NullTable        string        // 空表名称
 	TableComment     string        // 表注释
 	TableCommentNull string        // 表注释
 	Fields           []*FieldsInfo // 表字段
+	PackageName      string        //包名
 }
 
 // 表名和表注释

@@ -50,6 +50,17 @@ const (
 	GoFile_Example   = "example_test.go" // example file
 )
 
+//gorm
+const (
+	GormDirEntity     = "GormEntity" // entity file
+	GormInitFileName  = "Init.go"    // init file
+	GormToolsFileName = "tools.go"   // tools file
+
+	GormEntityTpl = "assets/gormtpl/Entity.tpl" // 结构实体模板
+	GormInitTpl   = "assets/gormtpl/Init.tpl"   // myInit模板
+	GormToolsTpl  = "assets/gormtpl/tools.tpl"  // tools模板
+)
+
 const (
 	PkgDbModels = "mysql"  // db_models package name
 	PkgEntity   = "entity" // entity package name
@@ -61,12 +72,21 @@ var CmdHelp = []entity.CmdEntity{
 	{"0", "Set build directory"},
 	{"1", "Generate the table markdown document"},
 	{"2", "Generate table structure entities"},
+	{"21", "myGenerate table structure entities"},
 	{"3", "Generate CURD insert, delete, update and select"},
 	{"4", "Sets the struct mapping name"},
 	{"5", "Find or set the table name"},
 	{"7, c, clear", "Clear the screen"},
 	{"8, h, help", "Show help list"},
 	{"9, q, quit", "Quit"},
+}
+
+// gorm或Xorm中Base需要排除的字段
+var ExcludeBaseFields = []string{
+	"id",
+	"created_at",
+	"updated_at",
+	"deleted_at",
 }
 
 //mysql类型 <=> golang类型
@@ -125,4 +145,4 @@ var MysqlTypeToGoNullType = map[string]string{
 	"longtext":   "sql.NullString",
 }
 
-var Formats []string       //format
+var Formats []string //format
