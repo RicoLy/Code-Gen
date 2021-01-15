@@ -114,9 +114,11 @@ func initDB(cfg DbConfig) (db *gorm.DB, err error) {
 	//添加钩子函数
 	addCallBackFunc(db)
 	//数据迁移
-	if err = migration(db); err != nil {
-		panic(err)
-	}
+	//if err = migration(db); err != nil {
+	//	panic(err)
+	//}
+	//db.SingularTable(true)	//数据迁移表生成结尾不带s
+
 	return
 }
 

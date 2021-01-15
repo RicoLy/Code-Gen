@@ -32,8 +32,8 @@ func (r *{{.Table}}) Save(model *{{.Table}}) (err error) {
 
 // 软删除：结构体需要继承Base model 有delete_at字段
 func (r *{{.Table}}) Delete(query interface{}, args ...interface{}) (err error) {
-	//return r.Db.Unscoped().Where(query, args).Delete(&{{.Table}}{}).Error //硬删除
-	return r.Db.Where(query, args).Delete(&{{.Table}}{}).Error
+	//return r.Db.Unscoped().Where(query, args...).Delete(&{{.Table}}{}).Error //硬删除
+	return r.Db.Where(query, args...).Delete(&{{.Table}}{}).Error
 }
 
 // 根据条件获取单挑记录

@@ -85,6 +85,22 @@ func (c *commands) GenerateEntry(args []string) int {
 }
 
 //生成golang表对应的结构实体
+func (c *commands) SQLGenerateEntry(args []string) int {
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+	err := c.l.CreateEntity(config.Formats)
+	if err != nil {
+		log.Println("GenerateEntry>>", err.Error())
+	}
+	go tools.Gofmt(tools.GetExeRootDir()) //格式化代码
+	return 0
+}
+
+//生成golang Gorm表对应的结构实体
 func (c *commands) GormGenerateEntry(args []string) int {
 	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
 	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()

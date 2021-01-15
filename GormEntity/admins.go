@@ -33,8 +33,8 @@ func (r *Admins) Save(model *Admins) (err error) {
 
 // 软删除：结构体需要继承Base model 有delete_at字段
 func (r *Admins) Delete(query interface{}, args ...interface{}) (err error) {
-	//return r.Db.Unscoped().Where(query, args).Delete(&Admins{}).Error //硬删除
-	return r.Db.Where(query, args).Delete(&Admins{}).Error
+	//return r.Db.Unscoped().Where(query, args...).Delete(&Admins{}).Error //硬删除
+	return r.Db.Where(query, args...).Delete(&Admins{}).Error
 }
 
 // 根据条件获取单挑记录

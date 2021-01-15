@@ -25,7 +25,7 @@ type Base struct {
 	CreatedAt int64      `gorm:"column:created_at;not null;default:'0';comment:'创建时间'" json:"createdAt" form:"createdAt"` // 创建时间
 	UpdatedAt int64      `gorm:"column:updated_at;not null;default:'0';comment:'更新时间'" json:"updatedAt" form:"updatedAt"` // 更新时间
 	DeletedAt *time.Time `gorm:"index;null;default:null;comment:'删除时间'" json:"deletedAt" form:"deletedAt"`                // 删除时间
-	Db        *gorm.DB                                                                                                    // 数据库连接
+	Db        *gorm.DB   // 数据库连接
 }
 
 // 添加前
@@ -113,10 +113,12 @@ func initDB(cfg DbConfig) (db *gorm.DB, err error) {
 	db = db.Debug()  //debug模式
 	//添加钩子函数
 	addCallBackFunc(db)
-	//数据迁移
-	if err = migration(db); err != nil {
-		panic(err)
-	}
+	//数据迁移生成表
+	//if err = migration(db); err != nil {
+	//	panic(err)
+	//}
+	//db.SingularTable(true)	//数据迁移生成表结尾不带s
+
 	return
 }
 
@@ -144,11 +146,11 @@ func addCallBackFunc(db *gorm.DB) {
 func migration(db *gorm.DB) (err error) {
 	//传入要迁移的模型指针
 	if err = db.AutoMigrate(
-		//new(Admin),
-		//new(AdminsRole),
-		//new(Menu),
-		//new(Role),
-		//new(RoleMenu),
+	//new(Admin),
+	//new(AdminsRole),
+	//new(Menu),
+	//new(Role),
+	//new(RoleMenu),
 	).Error; err != nil {
 		// 错误
 	}
