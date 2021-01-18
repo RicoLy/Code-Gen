@@ -43,7 +43,7 @@ func (r *{{.Table}}) First(query interface{}, args ...interface{}) (model {{.Tab
 	return
 }
 
-// 获取列表
+// 获取列表 数据量大时Count数据需另外请求接口
 func (r *{{.Table}}) Find(query interface{}, page *Pagination, args ...interface{}) (models []{{.Table}}, err error) {
 	if page == nil {
 		err = r.Db.Find(&models).Error
@@ -57,5 +57,11 @@ func (r *{{.Table}}) Find(query interface{}, page *Pagination, args ...interface
 		page.TotalPage = int64(math.Ceil(float64(page.Total / page.PageSize)))
 	}
 
+	return
+}
+
+// 获取总记录条数
+func (r *{{.Table}}) Count(where interface{}, args ...interface{}) (count int64, err error) {
+	err = r.Db.Model(&{{.Table}}{}).Where(where, args...).Count(&count).Error
 	return
 }

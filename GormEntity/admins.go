@@ -44,7 +44,7 @@ func (r *Admins) First(query interface{}, args ...interface{}) (model Admins, er
 	return
 }
 
-// 获取列表
+// 获取列表 数据量大时Count数据需另外请求接口
 func (r *Admins) Find(query interface{}, page *Pagination, args ...interface{}) (models []Admins, err error) {
 	if page == nil {
 		err = r.Db.Find(&models).Error
@@ -58,5 +58,11 @@ func (r *Admins) Find(query interface{}, page *Pagination, args ...interface{}) 
 		page.TotalPage = int64(math.Ceil(float64(page.Total / page.PageSize)))
 	}
 
+	return
+}
+
+// 获取总记录条数
+func (r *Admins) Count(where interface{}, args ...interface{}) (count int64, err error) {
+	err = r.Db.Model(&Admins{}).Where(where, args...).Count(&count).Error
 	return
 }
