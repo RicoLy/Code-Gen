@@ -24,7 +24,7 @@ type EntityReq struct {
 	TableName    string // 表名称
 	TableComment string // 表注释
 	Path         string // 文件路径
-	EntityPath   string //实体路径
+	EntityPath   string // 实体路径
 	Pkg          string // 命名空间名称
 	EntityPkg    string // entity实体的空间名称
 	FormatList   []string

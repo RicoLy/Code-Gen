@@ -61,6 +61,12 @@ const (
 	GormToolsTpl  = "assets/gormtpl/tools.tpl"  // tools模板
 )
 
+// Sql
+const (
+	SQLTPL_CURD = "assets/sqlTpl/crud.tpl" // 生成CRUD2模板
+	SQLTPL_INIT = "assets/sqlTpl/init.tpl" // init模板
+)
+
 const (
 	PkgDbModels = "mysql"  // db_models package name
 	PkgEntity   = "entity" // entity package name
@@ -74,6 +80,7 @@ var CmdHelp = []entity.CmdEntity{
 	{"2", "Generate table structure entities"},
 	{"21", "myGenerate table structure entities"},
 	{"3", "Generate CURD insert, delete, update and select"},
+	{"31", "myGenerate CURD insert, delete, update and select"},
 	{"4", "Sets the struct mapping name"},
 	{"5", "Find or set the table name"},
 	{"7, c, clear", "Clear the screen"},

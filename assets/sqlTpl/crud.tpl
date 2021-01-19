@@ -1,15 +1,4 @@
-//
-package mysql
 
-import (
-	"database/sql"
-	"db_models/config"
-	"db_models/entity"
-	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"math"
-	"time"
-)
 
 type {{.StructTableName}}Model struct {
 	DB *sql.DB

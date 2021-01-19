@@ -31,9 +31,11 @@ func (c *commands) Handlers() map[string]func(args []string) int {
 		"2":     c.GenerateEntry,
 		"21":    c.GormGenerateEntry,
 		"3":     c.GenerateCURD,
+		"31":    c.SQLGenerateCURD,
 		"4":     c.CustomFormat,
 		"5":     c.ShowTableList,
 		"7":     c.Clean,
+		"test":  c.Test,
 		"clear": c.Clean,
 		"c":     c.Clean,
 		"8":     c.Help,
@@ -134,6 +136,23 @@ func (c *commands) GenerateCURD(args []string) int {
 	return 0
 }
 
+//生成golang操作mysql的CRUD增删改查语句
+func (c *commands) SQLGenerateCURD(args []string) int {
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+
+	err := c.l.SQLCreateCURD(config.Formats)
+	if err != nil {
+		log.Println("GenerateCURD>>", err.Error())
+	}
+	go tools.Gofmt(tools.GetExeRootDir())
+	return 0
+}
+
 //自定义生成目录
 func (c *commands) CustomDir(args []string) int {
 	fmt.Print("Please set the build directory>")
@@ -174,6 +193,19 @@ func (c *commands) Clean(args []string) int {
 //退出
 func (c *commands) Quit(args []string) int {
 	return 1
+}
+
+//生成数据库表的markdown文档
+func (c *commands) Test(args []string) int {
+	fmt.Println("Testing .............")
+	//获取实列渲染数据
+	entityList, err := c.l.GetEntityListInfo()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+
+	return 0
 }
 
 //过滤表名
@@ -221,3 +253,4 @@ func (c *commands) _setFormat() []string {
 	fmt.Println("Set failed")
 	return nil
 }
+

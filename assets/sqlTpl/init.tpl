@@ -37,6 +37,14 @@ type DbConfig struct {
 	MaxOpen int    //最大连接数
 }
 
+// 页码结构体
+type Pagination struct {
+	Page      int64 `json:"page" example:"0"`      // 当前页
+	PageSize  int64 `json:"pageSize" example:"20"` // 每页条数
+	Total     int64 `json:"total"`                 // 总条数
+	TotalPage int64 `json:"totalPage"`             // 总页数
+}
+
 // 连接数据库
 func initDB(cfg DbConfig) *sql.DB {
 
