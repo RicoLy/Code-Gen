@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"code-gen/config"
 	"code-gen/entity"
+	"code-gen/generater"
 	"code-gen/logic"
 	"code-gen/tools"
 	"fmt"
@@ -15,11 +16,13 @@ import (
 
 type commands struct {
 	l *logic.Logic
+	g *generater.Generate
 }
 
-func NewCommands(logic *logic.Logic) *commands {
+func NewCommands(logic *logic.Logic, gen *generater.Generate) *commands {
 	return &commands{
 		l: logic,
+		g: gen,
 	}
 }
 
@@ -198,13 +201,52 @@ func (c *commands) Quit(args []string) int {
 //生成数据库表的markdown文档
 func (c *commands) Test(args []string) int {
 	fmt.Println("Testing .............")
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+	
 	//获取实列渲染数据
-	entityList, err := c.l.GetEntityListInfo()
+	entityInfoList, err := c.l.GetEntityListInfo()
 	if err != nil {
 		fmt.Println(err)
+		return 0
 	}
+	sqlInfoList, err := c.l.GetSqlInfoList(entityInfoList.EntityInfos)
+	if err != nil {
+		fmt.Println(err)
+		return 0
+	}
+	
+	//生成entity
+	path := tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Entity) 
+	for _, en := range entityInfoList.EntityInfos { // 生成结构体
+		if err := c.g.GenerateFiles(config.TPL_ENTITY, en, path  + config.DS + en.TableName); err != nil {
+			fmt.Println(err)
+			return 0
+		}
+	}
+	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS)
+	for _, sqlInfo := range sqlInfoList { // 生成CRUD
+		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path + config.DS + sqlInfo.TableName); err != nil {
+			fmt.Println(err)
+			return 0
+		}
+	}
+	// 生成Init
+	if err := c.g.GenerateFiles(config.SQLTPL_INIT, config.PkgDbModels, path + config.DS + config.GoFile_Init); err != nil {
+		fmt.Println(err)
+		return 0
+	}
+	// 生成config/tables文件
+	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Config)
 
-
+	if err := c.g.GenerateFiles(config.SQLTPL_CONF, entityInfoList.TableInfos, path + config.DS + config.GoFile_TableList); err != nil {
+		fmt.Println(err)
+		return 0
+	}
 	return 0
 }
 

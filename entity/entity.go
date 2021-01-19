@@ -128,3 +128,8 @@ type TableNameAndComment struct {
 	Name    string
 	Comment string
 }
+
+type EntityInfoList struct {
+	EntityInfos []*EntityReq
+	TableInfos []*TableList
+}

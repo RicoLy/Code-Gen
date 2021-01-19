@@ -97,28 +97,6 @@ func (l *Logic) GormCreateEntity(formatList []string) (err error) {
 	return
 }
 
-func (l *Logic) GetEntityListInfo() (dataInfo []*entity.EntityReq, err error) {
-	tableNameList := make([]*entity.TableList, 0)
-	dataInfo = make([]*entity.EntityReq, 0)
-	for idx, table := range l.DB.DoTables {
-		idx++
-		// 查询表结构信息
-		tableDesc, err := l.DB.GetTableDesc(table.Name)
-		if err != nil {
-			log.Fatal("CreateEntityErr>>", err)
-			continue
-		}
-		req := new(entity.EntityReq)
-		req.Index = idx
-		req.TableName = table.Name
-		req.TableComment = table.Comment
-		req.TableDesc = tableDesc
-		req.EntityPkg = config.PkgEntity
-		dataInfo = append(dataInfo, req)
-	}
-	return
-}
-
 // 生成原生的crud查询数据库
 func (l *Logic) CreateCURD(formatList []string) (err error) {
 	tableNameList := make([]*entity.TableList, 0)
@@ -171,6 +149,37 @@ func (l *Logic) CreateCURD(formatList []string) (err error) {
 	return nil
 }
 
+func (l *Logic) GetEntityListInfo() (dataInfo *entity.EntityInfoList, err error) {
+	tableNameList := make([]*entity.TableList, 0)
+	dataInfo = &entity.EntityInfoList{}
+	dataInfo.EntityInfos = make([]*entity.EntityReq, 0)
+	for idx, table := range l.DB.DoTables {
+		idx++
+
+		tableNameList = append(tableNameList, &entity.TableList{
+			UpperTableName: config.TablePrefix + l.T.ToUpper(table.Name),
+			TableName:      table.Name,
+			Comment:        table.Comment,
+		})
+
+		// 查询表结构信息
+		tableDesc, err := l.DB.GetTableDesc(table.Name)
+		if err != nil {
+			log.Fatal("CreateEntityErr>>", err)
+			continue
+		}
+		req := new(entity.EntityReq)
+		req.Index = idx
+		req.TableName = table.Name
+		req.TableComment = table.Comment
+		req.TableDesc = tableDesc
+		req.FormatList = config.Formats
+		req.EntityPkg = config.PkgEntity
+		dataInfo.EntityInfos = append(dataInfo.EntityInfos, req)
+	}
+	dataInfo.TableInfos = tableNameList
+	return
+}
 
 // 生成原生的crud查询数据库
 func (l *Logic) SQLCreateCURD(formatList []string) (err error) {
@@ -415,8 +424,6 @@ package mysql
 	}
 	return
 }
-
-
 
 // 创建结构实体
 func (l *Logic) GenerateDBEntity(req *entity.EntityReq) (err error) {
@@ -703,6 +710,93 @@ func (l *Logic) GenerateCURDFile(tableName, tableComment string, tableDesc []*en
 	return
 }
 
+func (l *Logic) GetSqlInfoList(dataInfos []*entity.EntityReq) (sqlInfos []*entity.SqlInfo, err error) {
+	var (
+		allFields       = make([]string, 0)
+		insertFields    = make([]string, 0)
+		InsertInfo      = make([]*entity.SqlFieldInfo, 0)
+		fieldsList      = make([]*entity.SqlFieldInfo, 0)
+		nullFieldList   = make([]*entity.NullSqlFieldInfo, 0)
+		updateList      = make([]string, 0)
+		updateListField = make([]string, 0)
+		PrimaryKey      = ""
+		primaryType     = ""
+		secondField     = ""
+	)
+	sqlInfos = make([]*entity.SqlInfo, 0)
+	for _, value := range dataInfos {
+		for _, item := range value.TableDesc {
+
+			allFields = append(allFields, tools.AddQuote(item.ColumnName))
+			if item.PrimaryKey == false && item.ColumnName != "id" && item.ColumnName != "updated_at" && item.ColumnName != "created_at" {
+				insertFields = append(insertFields, tools.AddQuote(item.ColumnName))
+				InsertInfo = append(InsertInfo, &entity.SqlFieldInfo{
+					HumpName: l.T.Capitalize(item.ColumnName),
+					Comment:  item.ColumnComment,
+				})
+				if item.ColumnName == "identify" {
+					updateList = append(updateList, tools.AddQuote(item.ColumnName)+"="+item.ColumnName+"+1")
+				} else {
+					updateList = append(updateList, tools.AddQuote(item.ColumnName)+"=?")
+					if item.PrimaryKey == false {
+						updateListField = append(updateListField, "value."+l.T.Capitalize(item.ColumnName))
+					}
+				}
+			}
+			if item.PrimaryKey || item.ColumnName == "id" {
+				PrimaryKey = item.ColumnName
+				primaryType = item.GolangType
+			} else {
+				// 除了主键外的任意一个字段即可。
+				if secondField == "" {
+					secondField = item.ColumnName
+				}
+			}
+			fieldsList = append(fieldsList, &entity.SqlFieldInfo{
+				HumpName: l.T.Capitalize(item.ColumnName),
+				Comment:  item.ColumnComment,
+			})
+			nullFieldList = append(nullFieldList, &entity.NullSqlFieldInfo{
+				HumpName:     l.T.Capitalize(item.ColumnName),
+				OriFieldType: item.OriMysqlType,
+				GoType:       config.MysqlTypeToGoType[item.OriMysqlType],
+				Comment:      item.ColumnComment,
+			})
+		}
+		// 主键ID,用于更新
+		if PrimaryKey != "" {
+			updateListField = append(updateListField, "value."+l.T.Capitalize(PrimaryKey))
+		}
+		// 拼出SQL所需要结构数据
+		InsertMark := strings.Repeat("?,", len(insertFields))
+		if len(InsertMark) > 0 {
+			InsertMark = InsertMark[:len(InsertMark)-1]
+		}
+		sqlInfo := &entity.SqlInfo{
+			TableName:           value.TableName,
+			PrimaryKey:          tools.AddQuote(PrimaryKey),
+			PrimaryType:         primaryType,
+			StructTableName:     l.T.Capitalize(value.TableName),
+			NullStructTableName: l.T.Capitalize(value.TableName) + config.DbNullPrefix,
+			PkgEntity:           config.PkgEntity + ".",
+			PkgTable:            config.PkgTable + ".",
+			UpperTableName:      config.TablePrefix + l.T.ToUpper(value.TableName),
+			AllFieldList:        strings.Join(allFields, ","),
+			InsertFieldList:     strings.Join(insertFields, ","),
+			InsertMark:          InsertMark,
+			UpdateFieldList:     strings.Join(updateList, ","),
+			UpdateListField:     updateListField,
+			FieldsInfo:          fieldsList,
+			NullFieldsInfo:      nullFieldList,
+			InsertInfo:          InsertInfo,
+			SecondField:         tools.AddQuote(secondField),
+		}
+		sqlInfos = append(sqlInfos, sqlInfo)
+	}
+
+	return
+}
+
 // 生成C增,U删,R查,D改,的文件
 func (l *Logic) SQLGenerateCURDFile(tableName, tableComment string, tableDesc []*entity.TableDesc) (err error) {
 	var (
@@ -720,7 +814,7 @@ func (l *Logic) SQLGenerateCURDFile(tableName, tableComment string, tableDesc []
 	var secondField string
 	for _, item := range tableDesc {
 		allFields = append(allFields, tools.AddQuote(item.ColumnName))
-		if item.PrimaryKey == false && item.ColumnName != "updated_at" && item.ColumnName != "created_at" {
+		if item.PrimaryKey == false && item.ColumnName != "id" && item.ColumnName != "updated_at" && item.ColumnName != "created_at" {
 			insertFields = append(insertFields, tools.AddQuote(item.ColumnName))
 			InsertInfo = append(InsertInfo, &entity.SqlFieldInfo{
 				HumpName: l.T.Capitalize(item.ColumnName),
@@ -735,7 +829,7 @@ func (l *Logic) SQLGenerateCURDFile(tableName, tableComment string, tableDesc []
 				}
 			}
 		}
-		if item.PrimaryKey {
+		if item.PrimaryKey || item.ColumnName == "id" {
 			PrimaryKey = item.ColumnName
 			primaryType = item.GolangType
 		} else {
@@ -1104,5 +1198,3 @@ func (l *Logic) GormGenerateTools(path string, data string) (err error) {
 	}
 	return
 }
-
-

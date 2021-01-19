@@ -65,6 +65,7 @@ const (
 const (
 	SQLTPL_CURD = "assets/sqlTpl/crud.tpl" // 生成CRUD2模板
 	SQLTPL_INIT = "assets/sqlTpl/init.tpl" // init模板
+	SQLTPL_CONF = "assets/sqlTpl/tables.tpl"
 )
 
 const (
@@ -83,6 +84,7 @@ var CmdHelp = []entity.CmdEntity{
 	{"31", "myGenerate CURD insert, delete, update and select"},
 	{"4", "Sets the struct mapping name"},
 	{"5", "Find or set the table name"},
+	{"test", "just a test"},
 	{"7, c, clear", "Clear the screen"},
 	{"8, h, help", "Show help list"},
 	{"9, q, quit", "Quit"},
