@@ -149,10 +149,11 @@ func (l *Logic) CreateCURD(formatList []string) (err error) {
 	return nil
 }
 
-func (l *Logic) GetEntityListInfo() (dataInfo *entity.EntityInfoList, err error) {
+func (l *Logic) GetTableInfoList() (dataInfo *entity.TableInfoList, err error) {
 	tableNameList := make([]*entity.TableList, 0)
-	dataInfo = &entity.EntityInfoList{}
-	dataInfo.EntityInfos = make([]*entity.EntityReq, 0)
+	dataInfo = &entity.TableInfoList{}
+	dataInfo.TableInfos = make([]*entity.TableInfo, 0)
+	dataInfo.SQLInfo = make([]*entity.SqlInfo, 0)
 	for idx, table := range l.DB.DoTables {
 		idx++
 
@@ -168,16 +169,130 @@ func (l *Logic) GetEntityListInfo() (dataInfo *entity.EntityInfoList, err error)
 			log.Fatal("CreateEntityErr>>", err)
 			continue
 		}
-		req := new(entity.EntityReq)
-		req.Index = idx
-		req.TableName = table.Name
-		req.TableComment = table.Comment
-		req.TableDesc = tableDesc
-		req.FormatList = config.Formats
-		req.EntityPkg = config.PkgEntity
-		dataInfo.EntityInfos = append(dataInfo.EntityInfos, req)
+		tableInfo, sqlInfo := l.makeTableInfoAndSqlInfo(table, tableDesc)
+
+		dataInfo.TableInfos = append(dataInfo.TableInfos, tableInfo)
+		dataInfo.SQLInfo = append(dataInfo.SQLInfo, sqlInfo)
 	}
-	dataInfo.TableInfos = tableNameList
+	dataInfo.TableNames = tableNameList
+	return
+}
+
+func (l *Logic) makeTableInfoAndSqlInfo(table entity.TableNameAndComment, tableDesc []*entity.TableDesc) (tableInfo *entity.TableInfo, sqlInfo *entity.SqlInfo) {
+	var (
+		allFields            = make([]string, 0)
+		insertFields         = make([]string, 0)
+		InsertInfo           = make([]*entity.SqlFieldInfo, 0)
+		UpdateInfo           = make([]*entity.SqlFieldInfo, 0)
+		fieldsList           = make([]*entity.SqlFieldInfo, 0)
+		nullFieldList        = make([]*entity.NullSqlFieldInfo, 0)
+		updateList           = make([]string, 0)
+		updateListField      = make([]string, 0)
+		PrimaryKey           = ""
+		primaryType          = ""
+		primaryColumnComment = ""
+		secondField          = ""
+	)
+	tableInfo = new(entity.TableInfo)
+	tableInfo.Table = l.T.Capitalize(table.Name)
+	tableInfo.TableName = table.Name
+	tableInfo.NullTable = tableInfo.Table + config.DbNullPrefix
+	tableInfo.TableComment = tools.AddToComment(table.Comment, "")
+	tableInfo.TableCommentNull = tools.AddToComment(table.Comment, " Null Entity")
+	tableInfo.PackageName = config.PkgEntity
+
+	// 装载表字段信息
+	for _, item := range tableDesc {
+		tableInfo.Fields = append(tableInfo.Fields, &entity.FieldsInfo{
+			Name:         l.T.Capitalize(item.ColumnName),
+			Type:         item.GolangType,
+			NullType:     item.MysqlNullType,
+			DbOriField:   item.ColumnName,
+			FormatFields: tools.FormatField(item.ColumnName, config.Formats),
+			Remark:       tools.AddToComment(item.ColumnComment, ""),
+		})
+		allFields = append(allFields, tools.AddQuote(item.ColumnName))
+
+		if item.PrimaryKey == false && (item.ColumnName != "updated_at" && item.ColumnName != "created_at" && item.ColumnName != "id" && item.ColumnName != "deleted_at") {
+			insertFields = append(insertFields, tools.AddQuote(item.ColumnName))
+			// 插入信息
+			InsertInfo = append(InsertInfo, &entity.SqlFieldInfo{
+				HumpName: l.T.Capitalize(item.ColumnName),
+				Comment:  item.ColumnComment,
+			})
+		}
+
+		if item.ColumnName == "identify" {
+			updateList = append(updateList, tools.AddQuote(item.ColumnName)+"="+item.ColumnName+"+1")
+		} else if item.ColumnName != "updated_at" && item.ColumnName != "created_at" && item.ColumnName != "deleted_at" && item.PrimaryKey == false && item.ColumnName != "id" {
+			updateList = append(updateList, tools.AddQuote(item.ColumnName)+"=?")
+
+			// 更新信息
+			UpdateInfo = append(UpdateInfo, &entity.SqlFieldInfo{
+				HumpName: l.T.Capitalize(item.ColumnName),
+				Comment:  item.ColumnComment,
+			})
+			updateListField = append(updateListField, "value."+l.T.Capitalize(item.ColumnName))
+
+		}
+
+		if item.PrimaryKey {
+			PrimaryKey = item.ColumnName
+			primaryType = item.GolangType
+			primaryColumnComment = item.ColumnComment
+		} else {
+			// 除了主键外的任意一个字段即可。
+			if secondField == "" {
+				secondField = item.ColumnName
+			}
+		}
+		fieldsList = append(fieldsList, &entity.SqlFieldInfo{
+			HumpName: l.T.Capitalize(item.ColumnName),
+			Comment:  item.ColumnComment,
+		})
+		nullFieldList = append(nullFieldList, &entity.NullSqlFieldInfo{
+			HumpName:     l.T.Capitalize(item.ColumnName),
+			OriFieldType: item.OriMysqlType,
+			GoType:       config.MysqlTypeToGoType[item.OriMysqlType],
+			Comment:      item.ColumnComment,
+		})
+	}
+	// 主键ID,用于更新
+	if PrimaryKey != "" {
+		// 更新信息
+		UpdateInfo = append(UpdateInfo, &entity.SqlFieldInfo{
+			HumpName: l.T.Capitalize(PrimaryKey),
+			Comment:  primaryColumnComment,
+		})
+		updateListField = append(updateListField, "value."+l.T.Capitalize(PrimaryKey))
+	}
+	// 拼出SQL所需要结构数据
+	InsertMark := strings.Repeat("?,", len(insertFields))
+	if len(InsertMark) > 0 {
+		InsertMark = InsertMark[:len(InsertMark)-1]
+	}
+
+	sqlInfo = &entity.SqlInfo{
+		TableName:           table.Name,
+		PrimaryKey:          tools.AddQuote(PrimaryKey),
+		PrimaryType:         primaryType,
+		StructTableName:     l.T.Capitalize(table.Name),
+		NullStructTableName: l.T.Capitalize(table.Name) + config.DbNullPrefix,
+		PkgEntity:           config.PkgEntity + ".",
+		PkgTable:            config.PkgTable + ".",
+		UpperTableName:      config.TablePrefix + l.T.ToUpper(table.Name),
+		AllFieldList:        strings.Join(allFields, ","),
+		InsertFieldList:     strings.Join(insertFields, ","),
+		InsertMark:          InsertMark,
+		UpdateFieldList:     strings.Join(updateList, ","),
+		UpdateListField:     updateListField,
+		FieldsInfo:          fieldsList,
+		NullFieldsInfo:      nullFieldList,
+		InsertInfo:          InsertInfo,
+		UpdateInfo:          UpdateInfo,
+		SecondField:         tools.AddQuote(secondField),
+		PackageName:         config.PkgDbModels,
+	}
 	return
 }
 

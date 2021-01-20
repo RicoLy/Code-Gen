@@ -1,4 +1,11 @@
+package {{.PackageName}}
 
+import (
+	"database/sql"
+	"fmt"
+	"math"
+	"time"
+)
 
 type {{.StructTableName}}Model struct {
 	DB *sql.DB
@@ -147,8 +154,10 @@ func (m *{{.StructTableName}}Model) CreateTx(value *{{.PkgEntity}}{{.StructTable
 func (m *{{.StructTableName}}Model) Update(value *{{.PkgEntity}}{{.StructTableName}}) (b bool, err error) {
 	const sqlText = "UPDATE " + {{.PkgTable}}{{.UpperTableName}} + " SET {{.UpdateFieldList}} WHERE {{.PrimaryKey}} = ?"
 	params := make([]interface{}, 0)
-	{{range $i, $val := .UpdateListField}}params = append(params, {{$val}})
-    {{end}}
+    params = append(params,
+    		{{range .UpdateInfo}}value.{{.HumpName}},// {{.Comment}}
+            {{end}}
+    	)
 
 	result, err := m.Prepare(sqlText, params...)
 	if err != nil {
@@ -166,8 +175,10 @@ func (m *{{.StructTableName}}Model) Update(value *{{.PkgEntity}}{{.StructTableNa
 func (m *{{.StructTableName}}Model) UpdateTx(value *{{.PkgEntity}}{{.StructTableName}}) (b bool, err error) {
 	const sqlText = "UPDATE " + {{.PkgTable}}{{.UpperTableName}} + " SET {{.UpdateFieldList}} WHERE {{.PrimaryKey}} = ?"
     params := make([]interface{}, 0)
-    {{range $i, $val := .UpdateListField}}params = append(params, {{$val}})
-    {{end}}
+    params = append(params,
+        		{{range .UpdateInfo}}value.{{.HumpName}},// {{.Comment}}
+                {{end}}
+        	)
 
 	result, err := m.PrepareTx(sqlText, params...)
 	if err != nil {

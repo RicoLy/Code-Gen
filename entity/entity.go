@@ -107,7 +107,9 @@ type SqlInfo struct {
 	UpdateListField     []string            // 更新字段列表
 	FieldsInfo          []*SqlFieldInfo     // 字段信息
 	NullFieldsInfo      []*NullSqlFieldInfo // 判断为空时
-	InsertInfo          []*SqlFieldInfo
+	InsertInfo          []*SqlFieldInfo     // 插入信息
+	UpdateInfo          []*SqlFieldInfo     // 跟新信息
+	PackageName         string              // 包名
 }
 
 // 查询使用的字段结构信息
@@ -129,7 +131,9 @@ type TableNameAndComment struct {
 	Comment string
 }
 
-type EntityInfoList struct {
-	EntityInfos []*EntityReq
-	TableInfos []*TableList
+// 表数据
+type TableInfoList struct {
+	TableInfos []*TableInfo
+	TableNames []*TableList
+	SQLInfo    []*SqlInfo
 }

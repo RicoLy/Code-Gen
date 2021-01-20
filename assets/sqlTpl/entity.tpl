@@ -1,3 +1,11 @@
+package {{.PackageName}}
+
+import (
+	"database/sql"
+	"github.com/go-sql-driver/mysql"
+	"time"
+)
+
 
 {{.TableComment}}
 type {{.Table}} struct {

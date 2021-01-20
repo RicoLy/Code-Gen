@@ -69,9 +69,10 @@ const (
 )
 
 const (
-	PkgDbModels = "mysql"  // db_models package name
-	PkgEntity   = "entity" // entity package name
-	PkgTable    = "config" // table package name
+	PkgDbModels   = "mysql"                    // db_models package name
+	PkgEntity     = "entity"                   // entity package name
+	PkgTable      = "config"                   // table package name
+	SQLTPL_ENTITY = "assets/sqlTpl/entity.tpl" // 结构实体模板
 )
 
 // help list

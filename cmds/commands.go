@@ -209,12 +209,7 @@ func (c *commands) Test(args []string) int {
 	}
 	
 	//获取实列渲染数据
-	entityInfoList, err := c.l.GetEntityListInfo()
-	if err != nil {
-		fmt.Println(err)
-		return 0
-	}
-	sqlInfoList, err := c.l.GetSqlInfoList(entityInfoList.EntityInfos)
+	tableInfoList, err := c.l.GetTableInfoList()
 	if err != nil {
 		fmt.Println(err)
 		return 0
@@ -222,15 +217,16 @@ func (c *commands) Test(args []string) int {
 	
 	//生成entity
 	path := tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Entity) 
-	for _, en := range entityInfoList.EntityInfos { // 生成结构体
-		if err := c.g.GenerateFiles(config.TPL_ENTITY, en, path  + config.DS + en.TableName); err != nil {
+	for _, en := range tableInfoList.TableInfos { // 生成结构体
+		if err := c.g.GenerateFiles(config.SQLTPL_ENTITY, en, path  + config.DS + en.TableName + ".go"); err != nil {
 			fmt.Println(err)
 			return 0
 		}
 	}
+	go tools.Gofmt(path) // 代码格式化
 	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS)
-	for _, sqlInfo := range sqlInfoList { // 生成CRUD
-		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path + config.DS + sqlInfo.TableName); err != nil {
+	for _, sqlInfo := range tableInfoList.SQLInfo { // 生成CRUD
+		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path + config.DS + sqlInfo.TableName + ".go"); err != nil {
 			fmt.Println(err)
 			return 0
 		}
@@ -240,13 +236,17 @@ func (c *commands) Test(args []string) int {
 		fmt.Println(err)
 		return 0
 	}
+	go tools.Gofmt(path) // 代码格式化
+
 	// 生成config/tables文件
 	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Config)
 
-	if err := c.g.GenerateFiles(config.SQLTPL_CONF, entityInfoList.TableInfos, path + config.DS + config.GoFile_TableList); err != nil {
+	if err := c.g.GenerateFiles(config.SQLTPL_CONF, tableInfoList.TableNames, path + config.DS + config.GoFile_TableList); err != nil {
 		fmt.Println(err)
 		return 0
 	}
+	go tools.Gofmt(path) // 代码格式化
+
 	return 0
 }
 
