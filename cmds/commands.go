@@ -35,10 +35,10 @@ func (c *commands) Handlers() map[string]func(args []string) int {
 		"21":    c.GormGenerateEntry,
 		"3":     c.GenerateCURD,
 		"31":    c.SQLGenerateCURD,
+		"32":    c.SqlGenerateEntityAndCURD,
 		"4":     c.CustomFormat,
 		"5":     c.ShowTableList,
 		"7":     c.Clean,
-		"test":  c.Test,
 		"clear": c.Clean,
 		"c":     c.Clean,
 		"8":     c.Help,
@@ -198,8 +198,8 @@ func (c *commands) Quit(args []string) int {
 	return 1
 }
 
-//生成数据库表的markdown文档
-func (c *commands) Test(args []string) int {
+//生成数据库表的Sql struct Crud
+func (c *commands) SqlGenerateEntityAndCURD(args []string) int {
 	fmt.Println("Testing .............")
 	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
 	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
@@ -207,18 +207,18 @@ func (c *commands) Test(args []string) int {
 	case "yes", "y":
 		config.Formats = c._setFormat()
 	}
-	
+
 	//获取实列渲染数据
 	tableInfoList, err := c.l.GetTableInfoList()
 	if err != nil {
 		fmt.Println(err)
 		return 0
 	}
-	
+
 	//生成entity
-	path := tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Entity) 
+	path := tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Entity)
 	for _, en := range tableInfoList.TableInfos { // 生成结构体
-		if err := c.g.GenerateFiles(config.SQLTPL_ENTITY, en, path  + config.DS + en.TableName + ".go"); err != nil {
+		if err := c.g.GenerateFiles(config.SQLTPL_ENTITY, en, path+config.DS+en.TableName+".go"); err != nil {
 			fmt.Println(err)
 			return 0
 		}
@@ -226,13 +226,13 @@ func (c *commands) Test(args []string) int {
 	go tools.Gofmt(path) // 代码格式化
 	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS)
 	for _, sqlInfo := range tableInfoList.SQLInfo { // 生成CRUD
-		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path + config.DS + sqlInfo.TableName + ".go"); err != nil {
+		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path+config.DS+sqlInfo.TableName+".go"); err != nil {
 			fmt.Println(err)
 			return 0
 		}
 	}
 	// 生成Init
-	if err := c.g.GenerateFiles(config.SQLTPL_INIT, config.PkgDbModels, path + config.DS + config.GoFile_Init); err != nil {
+	if err := c.g.GenerateFiles(config.SQLTPL_INIT, config.PkgDbModels, path+config.DS+config.GoFile_Init); err != nil {
 		fmt.Println(err)
 		return 0
 	}
@@ -241,7 +241,7 @@ func (c *commands) Test(args []string) int {
 	// 生成config/tables文件
 	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Config)
 
-	if err := c.g.GenerateFiles(config.SQLTPL_CONF, tableInfoList.TableNames, path + config.DS + config.GoFile_TableList); err != nil {
+	if err := c.g.GenerateFiles(config.SQLTPL_CONF, tableInfoList.TableNames, path+config.DS+config.GoFile_TableList); err != nil {
 		fmt.Println(err)
 		return 0
 	}
@@ -295,4 +295,3 @@ func (c *commands) _setFormat() []string {
 	fmt.Println("Set failed")
 	return nil
 }
-
