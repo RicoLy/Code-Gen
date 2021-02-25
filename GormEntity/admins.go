@@ -6,12 +6,12 @@ import (
 
 type Admins struct {
 	Base
-	UserName string `json:"user_name" gorm:"user_name" xml:"user_name"` // 管理员用户名
-	RealName string `json:"real_name" gorm:"real_name" xml:"real_name"` // 管理员真实姓名
-	Password string `json:"password" gorm:"password" xml:"password"`    // 密码(sha1(md5(明文))加密)
-	Email    string `json:"email" gorm:"email" xml:"email"`             // 邮箱
-	Phone    string `json:"phone" gorm:"phone" xml:"phone"`             // 手机
-	Status   int32  `json:"status" gorm:"status" xml:"status"`          // 状态(1:正常启用 2:暂停使用)
+	UserName string `json:"user_name" gorm:"user_name"` // 管理员用户名
+	RealName string `json:"real_name" gorm:"real_name"` // 管理员真实姓名
+	Password string `json:"password" gorm:"password"`   // 密码(sha1(md5(明文))加密)
+	Email    string `json:"email" gorm:"email"`         // 邮箱
+	Phone    string `json:"phone" gorm:"phone"`         // 手机
+	Status   int32  `json:"status" gorm:"status"`       // 状态(1:正常启用 2:暂停使用)
 }
 
 // 表名

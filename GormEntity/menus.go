@@ -6,14 +6,14 @@ import (
 
 type Menus struct {
 	Base
-	Status        int32  `json:"status" gorm:"status" xml:"status"`                         // 状态(1:启用 2:不启用)
-	ParentId      int64  `json:"parent_id" gorm:"parent_id" xml:"parent_id"`                // 父级ID
-	FrontPath     string `json:"front_path" gorm:"front_path" xml:"front_path"`             // 前端文件路径
-	Url           string `json:"url" gorm:"url" xml:"url"`                                  // 菜单api路径URL
-	Method        string `json:"method" gorm:"method" xml:"method"`                         // 操作方法 /GET/POST/PUT/DELETE/
-	Name          string `json:"name" gorm:"name" xml:"name"`                               // 菜单名称
-	InterfaceName string `json:"interface_name" gorm:"interface_name" xml:"interface_name"` // 接口名称
-	MenuType      int32  `json:"menu_type" gorm:"menu_type" xml:"menu_type"`                // 菜单类型(1:模块 2:菜单 3:操作)
+	Status        int32  `json:"status" gorm:"status"`                 // 状态(1:启用 2:不启用)
+	ParentId      int64  `json:"parent_id" gorm:"parent_id"`           // 父级ID
+	FrontPath     string `json:"front_path" gorm:"front_path"`         // 前端文件路径
+	Url           string `json:"url" gorm:"url"`                       // 菜单api路径URL
+	Method        string `json:"method" gorm:"method"`                 // 操作方法 /GET/POST/PUT/DELETE/
+	Name          string `json:"name" gorm:"name"`                     // 菜单名称
+	InterfaceName string `json:"interface_name" gorm:"interface_name"` // 接口名称
+	MenuType      int32  `json:"menu_type" gorm:"menu_type"`           // 菜单类型(1:模块 2:菜单 3:操作)
 }
 
 // 表名
@@ -35,8 +35,8 @@ func (r *Menus) Save(model *Menus) (err error) {
 
 // 软删除：结构体需要继承Base model 有delete_at字段
 func (r *Menus) Delete(query interface{}, args ...interface{}) (err error) {
-	//return r.Db.Unscoped().Where(query, args).Delete(&Menus{}).Error //硬删除
-	return r.Db.Where(query, args).Delete(&Menus{}).Error
+	//return r.Db.Unscoped().Where(query, args...).Delete(&Menus{}).Error //硬删除
+	return r.Db.Where(query, args...).Delete(&Menus{}).Error
 }
 
 // 根据条件获取单挑记录
@@ -46,7 +46,7 @@ func (r *Menus) First(query interface{}, args ...interface{}) (model Menus, err 
 	return
 }
 
-// 获取列表
+// 获取列表 数据量大时Count数据需另外请求接口
 func (r *Menus) Find(query interface{}, page *Pagination, args ...interface{}) (models []Menus, err error) {
 	if page == nil {
 		err = r.Db.Find(&models).Error
@@ -60,5 +60,11 @@ func (r *Menus) Find(query interface{}, page *Pagination, args ...interface{}) (
 		page.TotalPage = int64(math.Ceil(float64(page.Total / page.PageSize)))
 	}
 
+	return
+}
+
+// 获取总记录条数
+func (r *Menus) Count(where interface{}, args ...interface{}) (count int64, err error) {
+	err = r.Db.Model(&Menus{}).Where(where, args...).Count(&count).Error
 	return
 }

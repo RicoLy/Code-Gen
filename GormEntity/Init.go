@@ -21,7 +21,7 @@ type Pagination struct {
 }
 
 type Base struct {
-	ID        uint64     `gorm:"column:id;primary_key;AUTO_INCREMENT:false;" json:"id,string" form:"id"`                  // 主键
+	ID        uint64     `gorm:"column:id;primary_key;AUTO_INCREMENT:true;" json:"id,string" form:"id"`                  // 主键
 	CreatedAt int64      `gorm:"column:created_at;not null;default:'0';comment:'创建时间'" json:"createdAt" form:"createdAt"` // 创建时间
 	UpdatedAt int64      `gorm:"column:updated_at;not null;default:'0';comment:'更新时间'" json:"updatedAt" form:"updatedAt"` // 更新时间
 	DeletedAt *time.Time `gorm:"index;null;default:null;comment:'删除时间'" json:"deletedAt" form:"deletedAt"`                // 删除时间
@@ -113,11 +113,11 @@ func initDB(cfg DbConfig) (db *gorm.DB, err error) {
 	db = db.Debug()  //debug模式
 	//添加钩子函数
 	addCallBackFunc(db)
-	//数据迁移
+	//数据迁移生成表
 	//if err = migration(db); err != nil {
 	//	panic(err)
 	//}
-	//db.SingularTable(true)	//数据迁移表生成结尾不带s
+	//db.SingularTable(true)	//数据迁移生成表结尾不带s
 
 	return
 }
