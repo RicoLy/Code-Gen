@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-func TestPassProto(t *testing.T) {
-
+func TestParseFileToMessage(t *testing.T) {
 	messages := ParseFileToMessage("protos/models.proto")
 	for _, message := range messages {
 		fmt.Printf("%+v \n", message)

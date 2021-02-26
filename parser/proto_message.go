@@ -11,8 +11,8 @@ import (
 
 // proto信息
 type Message struct {
-	MessageMeta  string         // 元数据
-	MessageName  string         // 消息名
+	MessageMeta  string        // 元数据
+	MessageName  string        // 消息名
 	ElementInfos []ElementInfo // proto字段
 }
 
@@ -28,14 +28,6 @@ type ElementInfo struct {
 	Type string            // golang 数据类型
 	Tags map[string]string // 标签信息 tag | value  json:"pid" form:"pid"
 }
-
-// 方法信息
-type Method struct {
-	MethodName string // 方法名
-	Param      string // 参数
-	Returns    string // 返回值
-}
-
 
 // 解析文件
 func ParseFileToMessage(fileName string) (messages []Message) {
@@ -83,8 +75,14 @@ func ParseMessageElements(metaInfo string) (elements []ElementInfo) {
 		eleInfo.Tags = make(map[string]string)
 
 		kv := strings.Split(strings.TrimSpace(ele), " ")
-		eleInfo.Name = strings.TrimSpace(kv[1])
-		eleInfo.Type = strings.TrimSpace(kv[0])
+		if kv[0] != "repeated" { // 是否是slice
+			eleInfo.Name = kv[1]
+			eleInfo.Type = config.ProtoTypeToGoType[strings.TrimSpace(kv[0])] // 转换成goType
+		} else {
+			eleInfo.Name = strings.TrimSpace(kv[2])
+			eleInfo.Type = "[]" + config.ProtoTypeToGoType[strings.TrimSpace(kv[1])] // 转换成goType slice
+		}
+
 		sTag := strings.Split(strings.ReplaceAll(strings.ReplaceAll(tags, ":", " "), "\"", ""), ",")
 		for _, s := range sTag {
 			tkv := strings.Split(strings.TrimSpace(s), " ")
@@ -127,23 +125,8 @@ func MessagesToStructInfos(messages []Message) (structInfos []StructInfo) {
 	for _, message := range messages {
 		structInfo := StructInfo{}
 		structInfo.StructName = message.MessageName
-		structInfo.ElementInfos = MessageEleToGolangEle(message.ElementInfos)
+		structInfo.ElementInfos = message.ElementInfos
 		structInfos = append(structInfos, structInfo)
-	}
-
-	return
-}
-
-// messageElementType 转换成 GolangType
-func MessageEleToGolangEle(elementInfos []ElementInfo) (structElements []ElementInfo) {
-	structElements = make([]ElementInfo, 0)
-
-	for _, info := range elementInfos {
-		structElement := ElementInfo{}
-		structElement.Tags = info.Tags
-		structElement.Name = info.Name
-		structElement.Type = config.ProtoTypeToGoType[info.Type]
-		structElements = append(structElements, structElement)
 	}
 
 	return
