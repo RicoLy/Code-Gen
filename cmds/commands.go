@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"code-gen/config"
 	"code-gen/entity"
+	"code-gen/generater"
 	"code-gen/logic"
 	"code-gen/tools"
 	"fmt"
@@ -15,11 +16,13 @@ import (
 
 type commands struct {
 	l *logic.Logic
+	g *generater.Generate
 }
 
-func NewCommands(logic *logic.Logic) *commands {
+func NewCommands(logic *logic.Logic, gen *generater.Generate) *commands {
 	return &commands{
 		l: logic,
+		g: gen,
 	}
 }
 
@@ -31,6 +34,8 @@ func (c *commands) Handlers() map[string]func(args []string) int {
 		"2":     c.GenerateEntry,
 		"21":    c.GormGenerateEntry,
 		"3":     c.GenerateCURD,
+		"31":    c.SQLGenerateCURD,
+		"32":    c.SqlGenerateEntityAndCURD,
 		"4":     c.CustomFormat,
 		"5":     c.ShowTableList,
 		"7":     c.Clean,
@@ -134,6 +139,23 @@ func (c *commands) GenerateCURD(args []string) int {
 	return 0
 }
 
+//生成golang操作mysql的CRUD增删改查语句
+func (c *commands) SQLGenerateCURD(args []string) int {
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+
+	err := c.l.SQLCreateCURD(config.Formats)
+	if err != nil {
+		log.Println("GenerateCURD>>", err.Error())
+	}
+	go tools.Gofmt(tools.GetExeRootDir())
+	return 0
+}
+
 //自定义生成目录
 func (c *commands) CustomDir(args []string) int {
 	fmt.Print("Please set the build directory>")
@@ -174,6 +196,58 @@ func (c *commands) Clean(args []string) int {
 //退出
 func (c *commands) Quit(args []string) int {
 	return 1
+}
+
+//生成数据库表的Sql struct Crud
+func (c *commands) SqlGenerateEntityAndCURD(args []string) int {
+	fmt.Println("Testing .............")
+	fmt.Print("Do you need to set the format of the structure?(Yes|No)>")
+	line, _, _ := bufio.NewReader(os.Stdin).ReadLine()
+	switch strings.ToLower(string(line)) {
+	case "yes", "y":
+		config.Formats = c._setFormat()
+	}
+
+	//获取实列渲染数据
+	tableInfoList, err := c.l.GetTableInfoList()
+	if err != nil {
+		fmt.Println(err)
+		return 0
+	}
+
+	//生成entity
+	path := tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Entity)
+	for _, en := range tableInfoList.TableInfos { // 生成结构体
+		if err := c.g.GenerateFiles(config.SQLTPL_ENTITY, en, path+config.DS+en.TableName+".go"); err != nil {
+			fmt.Println(err)
+			return 0
+		}
+	}
+	go tools.Gofmt(path) // 代码格式化
+	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS)
+	for _, sqlInfo := range tableInfoList.SQLInfo { // 生成CRUD
+		if err := c.g.GenerateFiles(config.SQLTPL_CURD, sqlInfo, path+config.DS+sqlInfo.TableName+".go"); err != nil {
+			fmt.Println(err)
+			return 0
+		}
+	}
+	// 生成Init
+	if err := c.g.GenerateFiles(config.SQLTPL_INIT, config.PkgDbModels, path+config.DS+config.GoFile_Init); err != nil {
+		fmt.Println(err)
+		return 0
+	}
+	go tools.Gofmt(path) // 代码格式化
+
+	// 生成config/tables文件
+	path = tools.CreateDir(c.l.Path + config.GODIR_MODELS + config.DS + config.GODIR_Config)
+
+	if err := c.g.GenerateFiles(config.SQLTPL_CONF, tableInfoList.TableNames, path+config.DS+config.GoFile_TableList); err != nil {
+		fmt.Println(err)
+		return 0
+	}
+	go tools.Gofmt(path) // 代码格式化
+
+	return 0
 }
 
 //过滤表名

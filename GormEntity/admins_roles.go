@@ -6,8 +6,8 @@ import (
 
 type AdminsRoles struct {
 	Base
-	AdminsId int64 `json:"admins_id" gorm:"admins_id" xml:"admins_id"` // 管理员ID
-	RoleId   int64 `json:"role_id" gorm:"role_id" xml:"role_id"`       // 角色ID
+	AdminsId int64 `json:"admins_id" gorm:"admins_id"` // 管理员ID
+	RoleId   int64 `json:"role_id" gorm:"role_id"`     // 角色ID
 }
 
 // 表名
@@ -29,8 +29,8 @@ func (r *AdminsRoles) Save(model *AdminsRoles) (err error) {
 
 // 软删除：结构体需要继承Base model 有delete_at字段
 func (r *AdminsRoles) Delete(query interface{}, args ...interface{}) (err error) {
-	//return r.Db.Unscoped().Where(query, args).Delete(&AdminsRoles{}).Error //硬删除
-	return r.Db.Where(query, args).Delete(&AdminsRoles{}).Error
+	//return r.Db.Unscoped().Where(query, args...).Delete(&AdminsRoles{}).Error //硬删除
+	return r.Db.Where(query, args...).Delete(&AdminsRoles{}).Error
 }
 
 // 根据条件获取单挑记录
@@ -40,7 +40,7 @@ func (r *AdminsRoles) First(query interface{}, args ...interface{}) (model Admin
 	return
 }
 
-// 获取列表
+// 获取列表 数据量大时Count数据需另外请求接口
 func (r *AdminsRoles) Find(query interface{}, page *Pagination, args ...interface{}) (models []AdminsRoles, err error) {
 	if page == nil {
 		err = r.Db.Find(&models).Error
@@ -54,5 +54,11 @@ func (r *AdminsRoles) Find(query interface{}, page *Pagination, args ...interfac
 		page.TotalPage = int64(math.Ceil(float64(page.Total / page.PageSize)))
 	}
 
+	return
+}
+
+// 获取总记录条数
+func (r *AdminsRoles) Count(where interface{}, args ...interface{}) (count int64, err error) {
+	err = r.Db.Model(&AdminsRoles{}).Where(where, args...).Count(&count).Error
 	return
 }

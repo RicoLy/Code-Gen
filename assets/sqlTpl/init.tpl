@@ -1,19 +1,18 @@
-package mysql
+package {{.}}
 
 import (
 	"database/sql"
 	"fmt"
-	"net/url"
 	"strings"
 )
 
 var (
 	masterDB *sql.DB
-	slaveDB  *sql.DB
+	slaveDB  *sql.DB //从数据库
 )
 
 func init() {
-	cfg := dbConfig{
+	cfg := DbConfig{
 		Host:    "localhost",
 		Port:    3306,
 		Name:    "root",
@@ -27,16 +26,15 @@ func init() {
 	//slaveDB = initDB(cfg)
 }
 
-type dbConfig struct {
-	Host     string //地址
-	Port     int    //端口
-	Name     string //用户
-	Pass     string //密码
-	DBName   string //库名
-	Charset  string //编码
-	Timezone string //时区
-	MaxIdle  int    //最大空间连接
-	MaxOpen  int    //最大连接数
+type DbConfig struct {
+	Host    string //地址
+	Port    int    //端口
+	Name    string //用户
+	Pass    string //密码
+	DBName  string //库名
+	Charset string //编码
+	MaxIdle int    //最大空闲连接
+	MaxOpen int    //最大连接数
 }
 
 // 页码结构体
@@ -48,19 +46,17 @@ type Pagination struct {
 }
 
 // 连接数据库
-func initDB(cfg dbConfig) *sql.DB {
-	if strings.EqualFold(cfg.Timezone, "") {
-		cfg.Timezone = "'Asia/Shanghai'"
-	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true&loc=Local&time_zone=%s",
+func initDB(cfg DbConfig) *sql.DB {
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&",
 		cfg.Name,
 		cfg.Pass,
 		cfg.Host,
 		cfg.Port,
 		cfg.DBName,
 		cfg.Charset,
-		url.QueryEscape(cfg.Timezone),
 	)
+
 	defer func() {
 		if err := recover(); err != nil {
 			if err1 := MasterDBClose(); err1 != nil {

@@ -56,7 +56,7 @@ func (m *ModelS) GetTableDesc(tableName string) (reply []*entity.TableDesc, err 
 	defer m.l.Unlock()
 	result, err := m.Find("select `COLUMN_NAME` AS column_name,`DATA_TYPE` AS data_type, `COLUMN_KEY` AS column_key, "+
 		"`IS_NULLABLE` AS is_nullable, `COLUMN_DEFAULT` AS column_default,`COLUMN_TYPE` AS column_type, `COLUMN_COMMENT` "+
-		"AS column_comment from information_schema.columns where table_name = ? and table_schema = ?",
+		"AS column_comment from information_schema.columns where table_name = ? and table_schema = ? ORDER BY ordinal_position",
 		tableName, m.DBName)
 	if err != nil {
 		return

@@ -24,7 +24,7 @@ type EntityReq struct {
 	TableName    string // 表名称
 	TableComment string // 表注释
 	Path         string // 文件路径
-	EntityPath   string //实体路径
+	EntityPath   string // 实体路径
 	Pkg          string // 命名空间名称
 	EntityPkg    string // entity实体的空间名称
 	FormatList   []string
@@ -107,7 +107,9 @@ type SqlInfo struct {
 	UpdateListField     []string            // 更新字段列表
 	FieldsInfo          []*SqlFieldInfo     // 字段信息
 	NullFieldsInfo      []*NullSqlFieldInfo // 判断为空时
-	InsertInfo          []*SqlFieldInfo
+	InsertInfo          []*SqlFieldInfo     // 插入信息
+	UpdateInfo          []*SqlFieldInfo     // 跟新信息
+	PackageName         string              // 包名
 }
 
 // 查询使用的字段结构信息
@@ -127,4 +129,11 @@ type TableNameAndComment struct {
 	Index   int
 	Name    string
 	Comment string
+}
+
+// 表数据
+type TableInfoList struct {
+	TableInfos []*TableInfo
+	TableNames []*TableList
+	SQLInfo    []*SqlInfo
 }

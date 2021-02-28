@@ -6,6 +6,7 @@ import (
 	"code-gen/config"
 	"code-gen/db"
 	"code-gen/entity"
+	"code-gen/generater"
 	"code-gen/logic"
 	"code-gen/tools"
 	"database/sql"
@@ -138,7 +139,7 @@ func Commands(stop chan bool) error {
 		return err
 	}
 
-	commands := cmds.NewCommands(lgc)
+	commands := cmds.NewCommands(lgc, &generater.Generate{})
 	commands.Help(nil)
 	handlers := commands.Handlers()
 

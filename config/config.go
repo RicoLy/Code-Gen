@@ -61,10 +61,18 @@ const (
 	GormToolsTpl  = "assets/gormtpl/tools.tpl"  // tools模板
 )
 
+// Sql
 const (
-	PkgDbModels = "mysql"  // db_models package name
-	PkgEntity   = "entity" // entity package name
-	PkgTable    = "config" // table package name
+	SQLTPL_CURD = "assets/sqlTpl/crud.tpl" // 生成CRUD2模板
+	SQLTPL_INIT = "assets/sqlTpl/init.tpl" // init模板
+	SQLTPL_CONF = "assets/sqlTpl/tables.tpl"
+)
+
+const (
+	PkgDbModels   = "mysql"                    // db_models package name
+	PkgEntity     = "entity"                   // entity package name
+	PkgTable      = "config"                   // table package name
+	SQLTPL_ENTITY = "assets/sqlTpl/entity.tpl" // 结构实体模板
 )
 
 // help list
@@ -74,6 +82,8 @@ var CmdHelp = []entity.CmdEntity{
 	{"2", "Generate table structure entities"},
 	{"21", "myGenerate table structure entities"},
 	{"3", "Generate CURD insert, delete, update and select"},
+	{"31", "myGenerate CURD insert, delete, update and select"},
+	{"32", "myGenerate Sql Entity And CURD insert, delete, update and select"},
 	{"4", "Sets the struct mapping name"},
 	{"5", "Find or set the table name"},
 	{"7, c, clear", "Clear the screen"},
@@ -146,3 +156,22 @@ var MysqlTypeToGoNullType = map[string]string{
 }
 
 var Formats []string //format
+
+//protobuf类型 <=> golang类型
+var ProtoTypeToGoType = map[string]string{
+	"double":   "float64",
+	"float":    "float32",
+	"int32":    "int32",
+	"int64":    "int64",
+	"uint32":   "uint32",
+	"uint64":   "uint64",
+	"sint32":   "int32",
+	"sint64":   "int64",
+	"fixed32":  "uint32",
+	"fixed64":  "uint64",
+	"sfixed32": "int32",
+	"sfixed64": "int64",
+	"bool":     "bool",
+	"string":   "string",
+	"bytes":    "[]byte",
+}
