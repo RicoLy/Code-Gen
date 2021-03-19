@@ -15,40 +15,58 @@ service Ai {
 
 // 获取Ai 误报/漏报 配置请求
 message ShowReq {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Appid = 1;
+  // @inject_tag: json:"appid", validate:"required"
   string Where = 2;
+  // @inject_tag:
   string OrderBy = 3;
+  // @inject_tag:
   int64 Page = 4;
+  // @inject_tag:
   int64 PageSize = 5;
 }
 
 
 // 添加Ai误报信息
 message AddAiDistortReq {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Appid = 1;
+  // @inject_tag: json:"appid", validate:"required"
   string Domain = 2;
+  // @inject_tag: json:"appid", validate:"required"
   string Payload = 3;
+  // @inject_tag: json:"appid", validate:"required"
   string From = 4;
+  // @inject_tag: json:"appid", validate:"required"
   string Remark = 5;
 }
 
 // 添加Ai漏报信息
 message AddAiFailureReq {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Appid = 1;
+  // @inject_tag: json:"appid", validate:"required"
   string Domain = 2;
+  // @inject_tag: json:"appid", validate:"required"
   string Payload = 3;
+  // @inject_tag: json:"appid", validate:"required"
   uint32 Sign = 4;
+  // @inject_tag: json:"appid", validate:"required"
   string From = 5;
+  // @inject_tag: json:"appid", validate:"required"
   string Remark = 6;
 }
 
 //// 删除Ai误报信息
 message DeleteAiDistortReq {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Uin = 1;
 }
 
 //// 删除Ai漏报信息
 message DeleteAiFailureReq {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Uin = 1;
 }
 
@@ -56,50 +74,76 @@ message DeleteAiFailureReq {
 
 // 成功与否
 message Ack {
+  // @inject_tag: json:"appid", validate:"required"
   bool IsOk = 1;
 }
 
 // 页码结构体
 message PaginationRsp {
+  // @inject_tag: json:"appid", validate:"required"
   int64 Page = 1;
+  // @inject_tag: json:"appid", validate:"required"
   int64 PageSize = 2;
+  // @inject_tag: json:"appid", validate:"required"
   int64 Total = 3;
+  // @inject_tag: json:"appid", validate:"required"
   int64 TotalPage = 4;
 }
 
 //Ai误报信息
 message AiDistortRsp {
+  // @inject_tag: json:"uin", validate:"fqdn|startswith=*"
   uint64 Uin = 1;
+  // @inject_tag: json:"appid"
   uint64 Appid = 2;
+  // @inject_tag: json:"appid", validate:"required"
   string Domain = 3;
+  // @inject_tag: json:"appid", validate:"required"
   string Payload = 4;
+  // @inject_tag: json:"appid", validate:"required"
   string From = 5;
+  // @inject_tag: json:"appid", validate:"required"
   string Remark = 6;
+  // @inject_tag: json:"appid", validate:"required"
   uint32 Status = 7;
+  // @inject_tag: json:"appid", validate:"required"
   int64 CreatedAt = 8;
 }
 
 //获取Ai误报信息响应
 message ShowAiDistortRsp {
+  // @inject_tag: json:"appid", validate:"required"
   repeated AiDistortRsp AiDistorts = 1;
+  // @inject_tag: json:"appid", validate:"required"
   PaginationRsp  Pagination = 2;
 }
 
 // Ai漏报信息
 message AiFailureRsp {
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Uin = 1;
+  // @inject_tag: json:"appid", validate:"required"
   uint64 Appid = 2;
+  // @inject_tag: json:"appid", validate:"required"
   string Domain = 3;
+  // @inject_tag: json:"appid", validate:"required"
   string Payload = 4;
+  // @inject_tag: json:"appid", validate:"required"
   uint32 Sign = 5;
+  // @inject_tag: json:"appid", validate:"required"
   string From = 6;
+  // @inject_tag: json:"appid", validate:"required"
   string Remark = 7;
+  // @inject_tag: json:"appid", validate:"required"
   uint32 Status = 8;
+  // @inject_tag: json:"appid", validate:"required"
   int64 CreatedAt = 9;
 }
 
 // 获取Ai漏报信息列表响应
 message ShowAiFailureRsp {
+  // @inject_tag: json:"appid", validate:"required"
   repeated AiFailureRsp AiFailures = 1;
+  // @inject_tag: json:"appid", validate:"required"
   PaginationRsp  Pagination = 2;
 }

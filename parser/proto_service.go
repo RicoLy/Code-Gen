@@ -1,27 +1,16 @@
 package parser
 
 import (
+	"code-gen/micro/models"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
 )
 
-// 方法信息 rpc[\s]*([\w]*)\((\w*)\)\s*\w*\s*\((\w*)\)
-type Method struct {
-	MethodName string // 方法名
-	Param      string // 参数
-	Returns    string // 返回值
-}
-
-// 服务信息  service\s*(\w*)\s*{
-type ProtoService struct {
-	ServiceName string
-	Methods     []Method
-}
 
 // 解析文件
-func ParseFileToServiceInfo(fileName string) (protoService ProtoService) {
+func ParseFileToServiceInfo(fileName string) (protoService models.ProtoService) {
 	f, err := os.OpenFile(fileName, os.O_RDONLY, 0600)
 	defer f.Close()
 	if err != nil {
@@ -40,7 +29,7 @@ func ParseFileToServiceInfo(fileName string) (protoService ProtoService) {
 }
 
 // 解析服务信息
-func ParseServiceInfo(contentStr string) (protoService ProtoService) {
+func ParseServiceInfo(contentStr string) (protoService models.ProtoService) {
 	serviceName := ParseServiceName(contentStr)
 	protoService.ServiceName = serviceName
 	protoService.Methods = ParseServiceMethods(contentStr)
@@ -48,13 +37,13 @@ func ParseServiceInfo(contentStr string) (protoService ProtoService) {
 }
 
 // 解析方法列表
-func ParseServiceMethods(contentStr string) (methods []Method) {
+func ParseServiceMethods(contentStr string) (methods []models.Method) {
 	ret := regexp.MustCompile(`rpc[\s]*([\w]*)\((\w*)\)\s*\w*\s*\((\w*)\)`)
 	result := ret.FindAllStringSubmatch(contentStr, -1)
-	methods = make([]Method, 0)
+	methods = make([]models.Method, 0)
 
 	for _, str := range result {
-		method := Method{}
+		method := models.Method{}
 		method.MethodName = str[1]
 		method.Param = str[2]
 		method.Returns = str[3]

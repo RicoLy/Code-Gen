@@ -2,6 +2,7 @@ package parser
 
 import (
 	"code-gen/config"
+	"code-gen/micro/models"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -9,28 +10,9 @@ import (
 	"strings"
 )
 
-// proto信息
-type Message struct {
-	MessageMeta  string        // 元数据
-	MessageName  string        // 消息名
-	ElementInfos []ElementInfo // proto字段
-}
-
-// 结构体信息
-type StructInfo struct {
-	StructName   string
-	ElementInfos []ElementInfo // golang字段
-}
-
-// 字段信息
-type ElementInfo struct {
-	Name string            // 名称
-	Type string            // golang 数据类型
-	Tags map[string]string // 标签信息 tag | value  json:"pid" form:"pid"
-}
 
 // 解析文件
-func ParseFileToMessage(fileName string) (messages []Message) {
+func ParseFileToMessage(fileName string) (messages []models.Message) {
 	f, err := os.OpenFile(fileName, os.O_RDONLY, 0600)
 	defer f.Close()
 	if err != nil {
@@ -44,18 +26,18 @@ func ParseFileToMessage(fileName string) (messages []Message) {
 	}
 	contentStr := string(contentByte)
 
-	messages = make([]Message, 0)
+	messages = make([]models.Message, 0)
 	messages = ParseMessageInfos(contentStr)
 	return
 }
 
 // 解析Messages
-func ParseMessageInfos(contentStr string) (messages []Message) {
-	messages = make([]Message, 0)
+func ParseMessageInfos(contentStr string) (messages []models.Message) {
+	messages = make([]models.Message, 0)
 
 	nameMetaInfo := ParseMessageNameAndMetaInfo(contentStr)
 	for name, info := range nameMetaInfo {
-		message := Message{}
+		message := models.Message{}
 		message.MessageName = name
 		message.MessageMeta = info
 
@@ -66,12 +48,12 @@ func ParseMessageInfos(contentStr string) (messages []Message) {
 }
 
 // 解析字段
-func ParseMessageElements(metaInfo string) (elements []ElementInfo) {
-	elements = make([]ElementInfo, 0)
+func ParseMessageElements(metaInfo string) (elements []models.ElementInfo) {
+	elements = make([]models.ElementInfo, 0)
 
 	eleTags := ParseMessageElementsInfo(metaInfo)
 	for ele, tags := range eleTags {
-		eleInfo := ElementInfo{}
+		eleInfo := models.ElementInfo{}
 		eleInfo.Tags = make(map[string]string)
 
 		kv := strings.Split(strings.TrimSpace(ele), " ")
@@ -80,7 +62,11 @@ func ParseMessageElements(metaInfo string) (elements []ElementInfo) {
 			eleInfo.Type = config.ProtoTypeToGoType[strings.TrimSpace(kv[0])] // 转换成goType
 		} else {
 			eleInfo.Name = strings.TrimSpace(kv[2])
-			eleInfo.Type = "[]" + config.ProtoTypeToGoType[strings.TrimSpace(kv[1])] // 转换成goType slice
+			if _, ok := config.ProtoTypeToGoType[strings.TrimSpace(kv[1])]; ok {
+				eleInfo.Type = "[]" + config.ProtoTypeToGoType[strings.TrimSpace(kv[1])] // 有则转换成goType slice
+			} else {
+				eleInfo.Type = "[]" + strings.TrimSpace(kv[1]) //没有则转换成自定义类型 slice
+			}
 		}
 
 		sTag := strings.Split(strings.ReplaceAll(strings.ReplaceAll(tags, ":", " "), "\"", ""), ",")
@@ -97,7 +83,7 @@ func ParseMessageElements(metaInfo string) (elements []ElementInfo) {
 // 解析messageName 和元数据 字符串
 func ParseMessageNameAndMetaInfo(contentStr string) (nameMetaInfo map[string]string) {
 	// 解析proto message ---> name | metadata
-	ret := regexp.MustCompile(`message[\s]*([\S]*){[\s\S]*?}`)
+	ret := regexp.MustCompile(`message[\s]*([\S]*)[\s]*{[\s\S]*?}`)
 	result := ret.FindAllStringSubmatch(contentStr, -1)
 	nameMetaInfo = make(map[string]string, len(result))
 	for _, str := range result {
@@ -120,13 +106,27 @@ func ParseMessageElementsInfo(contentStr string) (eleTags map[string]string) {
 }
 
 // Message 转换成 Struct
-func MessagesToStructInfos(messages []Message) (structInfos []StructInfo) {
-	structInfos = make([]StructInfo, 0)
+func MessagesToStructInfos(messages []models.Message) (structInfos []models.StructInfo) {
+	structInfos = make([]models.StructInfo, 0)
 	for _, message := range messages {
-		structInfo := StructInfo{}
-		structInfo.StructName = message.MessageName
-		structInfo.ElementInfos = message.ElementInfos
+		structInfo := models.StructInfo{}
+		structInfo.StructName = message.MessageName // 结构体名
+		structInfo.ElementInfos = message.ElementInfos // 赋值元素信息
+		structInfo.HasWrite = false  // 默认未写入
 		structInfos = append(structInfos, structInfo)
+	}
+
+	return
+}
+
+// 解析文件为全局structInfo map
+func ParseFileToGlobalStructMap(fileName string) (structMap map[string]models.StructInfo) {
+	structMap = make(map[string]models.StructInfo)
+	messages := ParseFileToMessage(fileName)
+	structInfos := MessagesToStructInfos(messages)
+
+	for _, info := range structInfos {
+		structMap[info.StructName] = info
 	}
 
 	return
