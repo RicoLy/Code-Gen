@@ -46,7 +46,7 @@ func Start(app *cli.App, stop chan bool) {
 		if c.NumFlags() > 0 {
 			dbName := c.String("d") // 数据库名称
 			if dbName == "" {
-				return cli.NewExitError("database is null, please use -d params", 9)
+				return cli.Exit("database is null, please use -d params", 9)
 			}
 			DbConn.DBName = dbName
 			if DbConn.Pass == "" { // Use an asterisk instead of the password you entered
