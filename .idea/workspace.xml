@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="64a95598-c1c1-40f2-add9-87eb9b60149f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/micro/models/protos.go" beforeDir="false" afterPath="$PROJECT_DIR$/micro/models/protos.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,7 +17,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" path="D:\go" />
+  <component name="GOROOT" path="/usr/local/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -32,7 +33,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="go.vgo" />
   </component>
   <component name="RecentsManager">
@@ -76,33 +77,9 @@
     <proxy>https://goproxy.cn</proxy>
   </component>
   <component name="WindowStateProjectService">
-    <state x="592" y="360" key="#GOROOT" timestamp="1616557454815">
-      <screen x="0" y="0" width="1600" height="860" />
+    <state x="521" y="354" key="#GOROOT" timestamp="1651326442622">
+      <screen x="0" y="23" width="1440" height="788" />
     </state>
-    <state x="592" y="360" key="#GOROOT/0.0.1600.860@0.0.1600.860" timestamp="1616557454815" />
-    <state x="451" y="89" key="#Inspections" timestamp="1610380228781">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state x="451" y="89" key="#Inspections/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610380228781" />
-    <state width="1864" height="259" key="GridCell.Tab.0.bottom" timestamp="1610381610605">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state width="1864" height="259" key="GridCell.Tab.0.bottom/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610381610605" />
-    <state width="1864" height="259" key="GridCell.Tab.0.center" timestamp="1610381610605">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state width="1864" height="259" key="GridCell.Tab.0.center/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610381610605" />
-    <state width="1864" height="259" key="GridCell.Tab.0.left" timestamp="1610381610605">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state width="1864" height="259" key="GridCell.Tab.0.left/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610381610605" />
-    <state width="1864" height="259" key="GridCell.Tab.0.right" timestamp="1610381610605">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state width="1864" height="259" key="GridCell.Tab.0.right/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610381610605" />
-    <state x="336" y="56" key="SettingsEditor" timestamp="1610380402817">
-      <screen x="0" y="0" width="1920" height="1032" />
-    </state>
-    <state x="336" y="56" key="SettingsEditor/0.0.1920.1032/1920.0.900.1600@0.0.1920.1032" timestamp="1610380402817" />
+    <state x="521" y="354" key="#GOROOT/0.23.1440.788@0.23.1440.788" timestamp="1651326442622" />
   </component>
 </project>
