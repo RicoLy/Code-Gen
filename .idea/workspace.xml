@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="64a95598-c1c1-40f2-add9-87eb9b60149f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/micro/models/protos.go" beforeDir="false" afterPath="$PROJECT_DIR$/micro/models/protos.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser/protos/ai_service.proto" beforeDir="false" afterPath="$PROJECT_DIR$/parser/protos/ai_service.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +36,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" path="/usr/local/go" />
+  <component name="GOROOT" path="E:\Go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -57,6 +76,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build code-gen/cmd" />
+        <item itemvalue="Go Build.go build code-gen/cmd" />
       </list>
     </recent_temporary>
   </component>
@@ -65,6 +85,15 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VgoProject">
@@ -77,9 +106,10 @@
     <proxy>https://goproxy.cn</proxy>
   </component>
   <component name="WindowStateProjectService">
-    <state x="521" y="354" key="#GOROOT" timestamp="1651326442622">
-      <screen x="0" y="23" width="1440" height="788" />
+    <state x="695" y="437" key="#GOROOT" timestamp="1652149533404">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="695" y="437" key="#GOROOT/0.0.1920.1040@0.0.1920.1040" timestamp="1652149533404" />
     <state x="521" y="354" key="#GOROOT/0.23.1440.788@0.23.1440.788" timestamp="1651326442622" />
   </component>
 </project>

@@ -26,6 +26,7 @@ type Message struct {
 }
 
 // 结构体信息 message\s*(\w*)\s*{([\s\|\*\/@\w:",=;]*)}
+// \/\/\s[\u4e00-\u9fa5\w\s|]*message\s*(\w*)\s*{([\s\|\*\/@\w:",=;]*)}
 type StructInfo struct {
 	StructName   string
 	ElementInfos []ElementInfo // golang字段
@@ -49,6 +50,7 @@ type Method struct {
 }
 
 // 服务信息  service\s*(\w*)\s*{[\s\w(){};]*}
+// \/\/\s[\u4e00-\u9fa5\w\@\:\s\/{()}]*}
 type ProtoService struct {
 	ServiceName string
 	Methods     []Method

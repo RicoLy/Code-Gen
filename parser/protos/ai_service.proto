@@ -1,19 +1,24 @@
 syntax = "proto3";
 package pb;
 
-// ---------------------- Service ----------------------------
+// @group: ai, @prefix: /Ai Ai服务
 service Ai {
+  // @method: post
   rpc ShowAiDistort(ShowReq) returns (ShowAiDistortRsp) {}
+  // @method: post
   rpc ShowAiFailure(ShowReq) returns (ShowAiFailureRsp) {}
+  // @method: post
   rpc AddAiDistort(AddAiDistortReq) returns (Ack) {}
+  // @method: post
   rpc AddAiFailure(AddAiFailureReq) returns (Ack) {}
+  // @method: post
   rpc DeleteAiDistort(DeleteAiDistortReq) returns (Ack) {}
+  // @method: post
   rpc DeleteAiFailure(DeleteAiFailureReq) returns (Ack) {}
 }
 
-// ----------------------- Request ---------------------------
 
-// 获取Ai 误报/漏报 配置请求
+// 获取Ai 误报|漏报 配置请求
 message ShowReq {
   // @inject_tag: json:"appid", validate:"required"
   uint64 Appid = 1;
@@ -26,7 +31,6 @@ message ShowReq {
   // @inject_tag:
   int64 PageSize = 5;
 }
-
 
 // 添加Ai误报信息
 message AddAiDistortReq {
@@ -58,19 +62,17 @@ message AddAiFailureReq {
   string Remark = 6;
 }
 
-//// 删除Ai误报信息
+// 删除Ai误报信息
 message DeleteAiDistortReq {
   // @inject_tag: json:"appid", validate:"required"
   uint64 Uin = 1;
 }
 
-//// 删除Ai漏报信息
+// 删除Ai漏报信息
 message DeleteAiFailureReq {
   // @inject_tag: json:"appid", validate:"required"
   uint64 Uin = 1;
 }
-
-// ----------------------------- Response ----------------------------
 
 // 成功与否
 message Ack {
@@ -90,7 +92,7 @@ message PaginationRsp {
   int64 TotalPage = 4;
 }
 
-//Ai误报信息
+// Ai误报信息
 message AiDistortRsp {
   // @inject_tag: json:"uin", validate:"fqdn|startswith=*"
   uint64 Uin = 1;
@@ -110,7 +112,7 @@ message AiDistortRsp {
   int64 CreatedAt = 8;
 }
 
-//获取Ai误报信息响应
+// 获取Ai误报信息响应
 message ShowAiDistortRsp {
   // @inject_tag: json:"appid", validate:"required"
   repeated AiDistortRsp AiDistorts = 1;
