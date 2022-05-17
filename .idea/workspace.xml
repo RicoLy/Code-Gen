@@ -20,9 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64a95598-c1c1-40f2-add9-87eb9b60149f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/parser/protos/fiber_demo.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/micro/models/protos.go" beforeDir="false" afterPath="$PROJECT_DIR$/micro/models/protos.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parser/protos/ai_service.proto" beforeDir="false" afterPath="$PROJECT_DIR$/parser/protos/ai_service.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +32,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Go File" />
+        <option value="Proto File" />
       </list>
     </option>
   </component>
@@ -47,6 +47,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="DefaultProtoTemplateProperty" value="Proto File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />

@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package pb;
+
+message CommReq {}
+message CommRsp {}
+
+// 获取验证码响应
+message CaptchaRsp {
+  // @inject_tag: json:"captchaId"
+  string CaptchaId = 1;
+  // @inject_tag: json:"picPath"
+  string PicPath = 2;
+  // @inject_tag: json:"captchaLength"
+  int64 CaptchaLength = 3;
+}
+
+// 登录请求
+message LoginReq {
+  // @inject_tag: json:"phoneNum" validate:"len=11"
+  string PhoneNum = 1;
+  // @inject_tag: json:"password" validate:"required"
+  string Password = 2;
+  // @inject_tag: json:"captcha" validate:"len=6"
+  string Captcha = 3;
+  // @inject_tag: json:"captchaId" validate:"required"
+  string CaptchaId = 4;
+}
+
+// 用户信息
+message User {
+  // @inject_tag: json:"id"
+  string Id = 1;
+  // @inject_tag: json:"phoneNum"
+  string PhoneNum = 2;
+  // @inject_tag: json:"username"
+  string Username = 3;
+  // @inject_tag: json:"nickName"
+  string NickName = 4;
+  // @inject_tag: json:"headerImg"
+  string HeaderImg = 5;
+};
+
+// 登录响应
+message LoginRsp {
+  // @inject_tag: json:"jwtToken"
+  string JWTToken = 1;
+  // @inject_tag: json:"userInfo"
+  User UserInfo = 2;
+}
+
+// 添加用户响应
+message AddUserReq {
+  // @inject_tag: json:"phoneNum" validate:"len=11"
+  string PhoneNum = 1;
+  // @inject_tag: json:"userName" validate:"required"
+  string Username = 2;
+  // @inject_tag: json:"nickName" validate:"required"
+  string NickName = 3;
+  // @inject_tag: json:"headerImg" validate:"required"
+  string HeaderImg = 4;
+}
+
+// 用户详情请求
+message DetailReq {
+  // @inject_tag: json:"id" validate:"required"
+  string Id = 1;
+}
+
+// 用户详情响应
+message DetailRsp {
+  // @inject_tag: json:"userInfo"
+  User UserInfo = 1;
+}
+
+// @group: user, @prefix: /user, 用户模块
+service UserService {
+  // 获取验证码 @method: get
+  rpc Captcha(CommReq) returns (CaptchaRsp) {}
+  // 登录 @method: post
+  rpc Login(LoginReq) returns (LoginRsp) {}
+  // 添加用户 @method: post
+  rpc Add(AddUserReq) returns (CommRsp) {}
+  // 用户详情 @method: post
+  rpc Detail(DetailReq) returns (DetailRsp) {}
+}
+
+// 订单列表请求
+message ListOrderReq {
+  // @inject_tag: json:"id" validate:"required"
+  string Id = 1;
+  // @inject_tag: json:"startTime" validate:"datetime"
+  string StartTime = 2;
+  // @inject_tag: json:"endTime" validate:"datetime"
+  string EndTime = 3;
+  // @inject_tag: json:"page"
+  uint32 Page = 4;
+  // @inject_tag: json:"size"
+  uint32 Size = 5;
+}
+
+// 订单信息
+message Order {
+  string Id = 1;
+  string CreateTime = 2;
+  string TotalCount = 3;
+  string TotalSum = 4;
+  string Items = 5;
+}
+
+// 订单列表响应
+message ListOrderRsp {
+  // @inject_tag: json:"page"
+  uint32 Page = 1;
+  // @inject_tag: json:"size"
+  uint32 Total = 2;
+  //  @inject_tag: json:"order"
+  repeated Order OrderList = 3;
+}
+
+// @group: order, @prefix: /order, 订单模块
+service OrderService {
+  // 订单列表 @method: get
+  rpc List(ListOrderReq) returns (ListOrderRsp) {}
+}
