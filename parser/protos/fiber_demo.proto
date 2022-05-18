@@ -79,9 +79,9 @@ service UserService {
   rpc Captcha(CommReq) returns (CaptchaRsp) {}
   // 登录 @method: post
   rpc Login(LoginReq) returns (LoginRsp) {}
-  // 添加用户 @method: post
+  // 添加用户 @method: post @middleware: Jwt|CasBin
   rpc Add(AddUserReq) returns (CommRsp) {}
-  // 用户详情 @method: post
+  // 用户详情 @method: post @middleware: Jwt|CasBin
   rpc Detail(DetailReq) returns (DetailRsp) {}
 }
 
@@ -101,10 +101,15 @@ message ListOrderReq {
 
 // 订单信息
 message Order {
+  // @inject_tag: json:"id"
   string Id = 1;
+  // @inject_tag: json:"createTime"
   string CreateTime = 2;
+  // @inject_tag: json:"totalCount"
   string TotalCount = 3;
+  // @inject_tag: json:"totalSum"
   string TotalSum = 4;
+  // @inject_tag: json:"items"
   string Items = 5;
 }
 
@@ -114,12 +119,12 @@ message ListOrderRsp {
   uint32 Page = 1;
   // @inject_tag: json:"size"
   uint32 Total = 2;
-  //  @inject_tag: json:"order"
+  // @inject_tag: json:"order"
   repeated Order OrderList = 3;
 }
 
 // @group: order, @prefix: /order, 订单模块
 service OrderService {
-  // 订单列表 @method: get
+  // 订单列表 @method: get @middleware: Jwt|CasBin
   rpc List(ListOrderReq) returns (ListOrderRsp) {}
 }

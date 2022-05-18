@@ -20,8 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64a95598-c1c1-40f2-add9-87eb9b60149f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/parser/protos/fiber_demo.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser/proto_message.go" beforeDir="false" afterPath="$PROJECT_DIR$/parser/proto_message.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser/protos/fiber_demo.proto" beforeDir="false" afterPath="$PROJECT_DIR$/parser/protos/fiber_demo.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

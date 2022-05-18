@@ -14,11 +14,11 @@ import (
 // 解析文件
 func ParseFileToMessage(fileName string) (messages []models.Message) {
 	f, err := os.OpenFile(fileName, os.O_RDONLY, 0600)
-	defer f.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+	defer f.Close()
 	contentByte, err := ioutil.ReadAll(f)
 	if err != nil {
 		fmt.Println(err)
